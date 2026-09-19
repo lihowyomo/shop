@@ -81,7 +81,7 @@
         <span>🎬</span> AI 帶貨影音工作室
       </button>
       <button onclick="switchTab('tab-radar')" id="btn-tab-radar" class="tab-btn py-3 px-3.5 border-b-2 text-slate-400 border-transparent hover:text-slate-200 flex items-center gap-1.5 whitespace-nowrap transition">
-        <span>🔥</span> 爆品探測雷達
+        <span>🔥</span> 爆品探測雷達與決策矩陣
       </button>
       <button onclick="switchTab('tab-compliance')" id="btn-tab-compliance" class="tab-btn py-3 px-3.5 border-b-2 text-slate-400 border-transparent hover:text-slate-200 flex items-center gap-1.5 whitespace-nowrap transition">
         <span>🛡️</span> 台灣法規洗白雷達
@@ -251,206 +251,168 @@
 
     <!-- ================= TAB 2: 爆品探測雷達 (市場數據源) ================= -->
     <div id="tab-radar" class="tab-content hidden space-y-6">
-      <div class="bg-slate-900 rounded-2xl p-5 border border-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h2 class="text-sm font-bold text-white flex items-center gap-2">
-            <span>🔥</span> 24H / 7D / 30D 動態爆款選品情報庫
-          </h2>
-          <p class="text-xs text-slate-400 mt-0.5">點擊卡片，直接將商品情報同步導入 AI 影音工作室與財務計算機</p>
+      <!-- 頂部概況數據指標欄 -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5 text-xs">
+        <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl">
+          <span class="text-slate-400 block text-[10px]">監測高動銷池</span>
+          <span class="text-lg font-black text-white" id="radarStatCount">8 款潛力爆品</span>
+          <span class="text-[10px] text-emerald-400 block font-medium">即時連線 1688 / 蝦皮榜單</span>
         </div>
-
-        <div class="flex items-center gap-2 text-xs">
-          <button onclick="setRadarFilter('all')" id="rf-all" class="rf-btn px-3 py-1.5 rounded-lg bg-brand-600 text-white font-bold transition">全部品類</button>
-          <button onclick="setRadarFilter('care')" id="rf-care" class="rf-btn px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition">居家保養</button>
-          <button onclick="setRadarFilter('sport')" id="rf-sport" class="rf-btn px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition">輕量體態</button>
+        <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl">
+          <span class="text-slate-400 block text-[10px]">平均預估淨利率</span>
+          <span class="text-lg font-black text-emerald-400" id="radarStatAvgMargin">58.4%</span>
+          <span class="text-[10px] text-slate-500 block">已扣除 16.5% 平台費</span>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl">
+          <span class="text-slate-400 block text-[10px]">高藍海指數品項</span>
+          <span class="text-lg font-black text-indigo-400">85% 比例</span>
+          <span class="text-[10px] text-indigo-300/80 block">避開低價惡意比價</span>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl">
+          <span class="text-slate-400 block text-[10px]">法規免檢安全率</span>
+          <span class="text-lg font-black text-rose-400">100% 綠色</span>
+          <span class="text-[10px] text-slate-400 block">零醫療器材/化妝品特許</span>
         </div>
       </div>
 
-      <!-- 雷達卡片瀑布流 -->
+      <!-- 控制面板：時序、類別、排序與自訂品項探測 -->
+      <div class="bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-800 space-y-4 shadow-xl">
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3.5">
+          <!-- 時序切換器 (24h / 7d / 30d) -->
+          <div class="flex items-center space-x-1.5 bg-slate-950 p-1.5 rounded-xl text-xs font-semibold border border-slate-800/80 w-full sm:w-auto overflow-x-auto">
+            <button onclick="setRadarTimeframe('24h')" id="rtf-24h" class="rtf-btn px-3 py-1.5 rounded-lg bg-brand-600 text-white font-bold transition whitespace-nowrap">
+              ⚡ 24H 短影音突發榜
+            </button>
+            <button onclick="setRadarTimeframe('7d')" id="rtf-7d" class="rtf-btn px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 transition whitespace-nowrap">
+              📈 7天 飆升成長榜
+            </button>
+            <button onclick="setRadarTimeframe('30d')" id="rtf-30d" class="rtf-btn px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 transition whitespace-nowrap">
+              🏆 30天 長銷壓艙榜
+            </button>
+          </div>
+
+          <!-- 動作按鈕：開啟自訂選品沙盒 -->
+          <button onclick="toggleCustomProductModal()" class="text-xs bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-90 text-white font-bold py-2 px-3.5 rounded-xl transition flex items-center gap-1.5 shadow-md shadow-emerald-600/20 whitespace-nowrap">
+            <span>➕</span>
+            <span>自訂選品深度診斷沙盒</span>
+          </button>
+        </div>
+
+        <!-- 類別過濾、排序與搜尋列 -->
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-800 text-xs">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-slate-400 font-semibold text-[11px]">品類：</span>
+            <button onclick="setRadarFilter('all')" id="rf-all" class="rf-btn px-2.5 py-1 rounded-lg bg-brand-600/30 text-brand-300 border border-brand-500/50 font-bold transition">全部品類</button>
+            <button onclick="setRadarFilter('care')" id="rf-care" class="rf-btn px-2.5 py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700/60 hover:text-white transition">居家SPA保養</button>
+            <button onclick="setRadarFilter('sport')" id="rf-sport" class="rf-btn px-2.5 py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700/60 hover:text-white transition">輕量居家體態</button>
+            <button onclick="setRadarFilter('living')" id="rf-living" class="rf-btn px-2.5 py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700/60 hover:text-white transition">沉浸日用儀式</button>
+          </div>
+
+          <div class="flex items-center gap-2 w-full sm:w-auto">
+            <select id="radarSortOrder" onchange="renderRadarCards()" class="bg-slate-950 border border-slate-800 text-slate-300 rounded-xl px-2.5 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500">
+              <option value="growth">依動銷增長率排序</option>
+              <option value="margin">依預估淨利率排序</option>
+              <option value="ocean">依藍海競爭指數排序</option>
+              <option value="price_asc">建議售價 (低到高)</option>
+              <option value="price_desc">建議售價 (高到低)</option>
+            </select>
+            <input type="text" id="radarSearchInput" oninput="renderRadarCards()" placeholder="搜尋品名、痛點..." class="bg-slate-950 border border-slate-800 text-slate-200 rounded-xl px-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500 w-full sm:w-44">
+          </div>
+        </div>
+      </div>
+
+      <!-- 自訂選品診斷沙盒 (預設折疊，點擊展開) -->
+      <div id="customProductBox" class="hidden bg-slate-900 border border-emerald-500/40 rounded-2xl p-5 space-y-4 shadow-2xl transition-all">
+        <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+          <div>
+            <h3 class="text-sm font-bold text-white flex items-center gap-1.5">
+              <span class="text-emerald-400">🧪</span> 自訂選品全維度決策診斷沙盒
+            </h3>
+            <p class="text-[11px] text-slate-400">輸入你在 1688 或供應商看到的任何新商品，立即測算淨利、短影音潛力與法規安全指數</p>
+          </div>
+          <button onclick="toggleCustomProductModal()" class="text-slate-400 hover:text-white text-xs">✕ 關閉</button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3.5 text-xs">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">商品名稱</label>
+            <input type="text" id="cstName" value="冰感注水微雕滾輪儀" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">所屬品類場景</label>
+            <select id="cstCat" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-200">
+              <option value="care">居家SPA保養</option>
+              <option value="sport">輕量居家體態</option>
+              <option value="living">沉浸日用儀式</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">1688 採購價 (RMB ¥)</label>
+            <input type="number" id="cstCny" value="6.5" step="0.1" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">蝦皮預計售價 (NT$)</label>
+            <input type="number" id="cstPrice" value="239" class="w-full bg-slate-950 border border-emerald-500/50 rounded-xl px-3 py-2 text-emerald-400 font-bold">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 text-xs">
+          <div>
+            <label class="block text-slate-400 mb-1">單件頭程空運+耗材 (NT$)</label>
+            <input type="number" id="cstShipping" value="12" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-200">
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1">主打前3秒爆款 Hook</label>
+            <input type="text" id="cstHook" value="「早上起床照鏡子超想哭？注水冰凍3分鐘，這才是精緻女孩的晨間作弊神器！」" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-200">
+          </div>
+          <div class="flex items-end">
+            <button onclick="submitCustomProductToRadar()" class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/30">
+              <span>🚀</span>
+              <span>測算完畢並收錄至選品庫</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 雷達卡片網格 (瀑布流) -->
       <div id="radarCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         <!-- JS 動態生成 -->
       </div>
-    </div>
 
-    <!-- ================= TAB 3: 台灣法規洗白雷達 (合規模組) ================= -->
-    <div id="tab-compliance" class="tab-content hidden space-y-6">
-      <div class="bg-slate-900 rounded-2xl p-6 border border-slate-800 space-y-5">
-        <div class="border-b border-slate-800 pb-4">
-          <h2 class="text-sm font-bold text-white flex items-center gap-2">
-            <span>🛡️</span> 衛福部文案法規高危字詞「自動洗白」沙盒
-          </h2>
-          <p class="text-xs text-slate-400 mt-1">
-            專門針對美容刮痧、筋膜按摩、輕運動用品，在輸入任何短影音字幕或商品描述時，一秒偵測開罰風險並自動替換為合法美學用詞。
-          </p>
+      <!-- 候選商品橫向 PK 對比庫 -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-xl">
+        <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+          <div>
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <span>📋</span> 候選商品橫向決策 PK 庫
+              <span id="compareCountBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-brand-950 text-brand-300 border border-brand-800">已加入 0 款</span>
+            </h3>
+            <p class="text-xs text-slate-400 mt-0.5">點擊卡片上的「加入 PK」即可將商品放入橫向比對矩陣，一眼挑出最高利潤主打款</p>
+          </div>
+          <button onclick="clearCompareList()" class="text-xs text-slate-400 hover:text-rose-400 transition">清空比對清單</button>
         </div>
 
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1.5">待檢測文案輸入框：</label>
-          <textarea id="complianceInput" rows="4" oninput="runComplianceScan()" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs sm:text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="輸入文案，例如：這款滾輪能排毒消水腫、瘦臉提拉下巴，還能疏通經絡活血..."></textarea>
-        </div>
-
-        <!-- 掃描結果回饋 -->
-        <div id="complianceResultCard" class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-slate-300">雷達掃描狀態：</span>
-            <span id="complianceBadge" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-400">尚未輸入文字</span>
-          </div>
-          <div id="complianceMatchedBadges" class="flex flex-wrap gap-2"></div>
-          <div id="complianceRewrittenBox" class="p-3 bg-slate-900 rounded-lg text-xs text-slate-300 space-y-1">
-            <p class="text-slate-500">掃描建議將在此處展開...</p>
-          </div>
-        </div>
-
-        <!-- 快速一鍵套用洗白文案 -->
-        <div class="flex justify-end">
-          <button onclick="applyComplianceCleanText()" id="btnApplyCleanText" class="hidden text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-4 rounded-xl transition">
-            ✨ 一鍵將合規洗白文案同步到影音工作室
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ================= TAB 4: 蝦皮利潤核算模型 (商業後台) ================= -->
-    <div id="tab-finance" class="tab-content hidden space-y-6">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
-        <!-- 左側輸入 -->
-        <div class="lg:col-span-7 bg-slate-900 rounded-2xl p-6 border border-slate-800 space-y-5">
-          <h2 class="text-sm font-bold text-white border-b border-slate-800 pb-3">2026 蝦皮平台費率真實成本核算</h2>
-          
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="block text-xs font-semibold text-slate-300 mb-1">1688 進貨價 (RMB)</label>
-              <input type="number" id="finCny" value="7.8" step="0.1" oninput="calcFinance()" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-300 mb-1">匯率 (RMB $\rightarrow$ TWD)</label>
-              <input type="number" id="finFx" value="4.6" step="0.05" oninput="calcFinance()" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-300 mb-1">蝦皮預計促銷售價 (NT$)</label>
-              <input type="number" id="finPrice" value="269" oninput="calcFinance()" class="w-full bg-slate-800 border border-brand-500/50 rounded-xl px-3 py-2 text-xs font-bold text-brand-300">
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-300 mb-1">單件頭程空運+耗材 (NT$)</label>
-              <input type="number" id="finShipping" value="16" oninput="calcFinance()" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
-            </div>
-          </div>
-
-          <div class="pt-3 border-t border-slate-800 space-y-2.5">
-            <span class="text-xs font-bold text-slate-400">平台活動扣繳勾選：</span>
-            <div class="grid grid-cols-2 gap-2 text-xs">
-              <label class="flex items-center gap-2 p-2.5 bg-slate-800/80 rounded-xl border border-slate-700/80 cursor-pointer">
-                <input type="checkbox" id="finFreeShip" checked onchange="calcFinance()" class="text-brand-500 focus:ring-brand-500">
-                <span>全店免運方案 (+6%)</span>
-              </label>
-              <label class="flex items-center gap-2 p-2.5 bg-slate-800/80 rounded-xl border border-slate-700/80 cursor-pointer">
-                <input type="checkbox" id="finCoins" checked onchange="calcFinance()" class="text-brand-500 focus:ring-brand-500">
-                <span>10% 蝦幣回饋 (+3%)</span>
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <!-- 右側財務快照 -->
-        <div class="lg:col-span-5 bg-gradient-to-br from-slate-900 to-slate-950 rounded-2xl p-6 border border-slate-800 flex flex-col justify-between">
-          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Net Profit Breakdown</span>
-          
-          <div class="space-y-3 my-4 text-xs">
-            <div class="flex justify-between py-1 border-b border-slate-800/60">
-              <span class="text-slate-400">採購加總落地成本</span>
-              <span id="resTotalCost" class="font-semibold text-white">NT$ 51.9</span>
-            </div>
-            <div class="flex justify-between py-1 border-b border-slate-800/60">
-              <span class="text-slate-400">平台總抽成比例 (含活動)</span>
-              <span id="resTotalRate" class="font-bold text-shopee">16.5%</span>
-            </div>
-            <div class="flex justify-between py-1 border-b border-slate-800/60">
-              <span class="text-slate-400">平台各項手續費+發票</span>
-              <span id="resFeeTotal" class="font-semibold text-rose-400">NT$ 46.9</span>
-            </div>
-            <div class="flex justify-between py-2 border-b border-dashed border-slate-700">
-              <span class="text-sm font-bold text-white">單單實拿純淨利</span>
-              <span id="resNetProfit" class="text-base font-black text-emerald-400">NT$ 170.2</span>
-            </div>
-            <div class="flex justify-between py-1">
-              <span class="text-slate-400">純淨利潤率 (Margin)</span>
-              <span id="resMargin" class="text-sm font-black text-emerald-400">63.3%</span>
-            </div>
-          </div>
-
-          <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-xs">
-            <div class="flex justify-between items-baseline">
-              <span class="text-slate-400">保本售價門檻 (BEP)</span>
-              <span id="resBep" class="font-bold text-white">NT$ 66</span>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- ================= TAB 5: 如何做成真實 App (商業與技術架構圖) ================= -->
-    <div id="tab-architecture" class="tab-content hidden space-y-6">
-      <div class="bg-slate-900 rounded-2xl p-6 border border-slate-800 space-y-6">
-        <div>
-          <h2 class="text-base font-bold text-white flex items-center gap-2">
-            <span>🏗️</span> 如何打造一個類似 VeloFlow.ai 的商業級 App？
-          </h2>
-          <p class="text-xs text-slate-400 mt-1">
-            從單純自用到對外收費（SaaS 訂閱制）的 4 大核心技術模組與 API 對齊表。
-          </p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs">
-          <!-- 模組 1 -->
-          <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
-            <div class="flex items-center justify-between">
-              <span class="font-bold text-brand-300 text-sm">1. 爆款數據與選品爬蟲層</span>
-              <span class="px-2 py-0.5 rounded bg-brand-900/50 text-brand-300 text-[10px] font-bold">Data Layer</span>
-            </div>
-            <p class="text-slate-400 leading-relaxed">
-              透過 Python (Playwright / Scrapy) 定時抓取蝦皮熱銷榜、抖音帶貨榜與 1688 圖片搜尋 API。儲存為結構化商品池（價格、銷量、評價數、主圖）。
-            </p>
-            <span class="text-[11px] text-slate-500 block font-mono">推薦API：1688 開放平台、Apify 蝦皮爬蟲庫</span>
-          </div>
-
-          <!-- 模組 2 -->
-          <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
-            <div class="flex items-center justify-between">
-              <span class="font-bold text-indigo-300 text-sm">2. AI 大腦與分鏡腳本調度</span>
-              <span class="px-2 py-0.5 rounded bg-indigo-900/50 text-indigo-300 text-[10px] font-bold">LLM Brain</span>
-            </div>
-            <p class="text-slate-400 leading-relaxed">
-              使用大型語言模型（如 Gemini 1.5/2.0 Flash）調度 Prompt 模板，將商品賣點拆解為「前3秒 Hook ＋ 痛點 ＋ 解決方案 ＋ 行動呼籲」，並自動進行台灣衛福部廣告詞合規過濾。
-            </p>
-            <span class="text-[11px] text-slate-500 block font-mono">推薦API：Google Gemini API (低成本快速)</span>
-          </div>
-
-          <!-- 模組 3 -->
-          <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
-            <div class="flex items-center justify-between">
-              <span class="font-bold text-pink-300 text-sm">3. 影音合成與自動剪輯渲染</span>
-              <span class="px-2 py-0.5 rounded bg-pink-900/50 text-pink-300 text-[10px] font-bold">Video Pipeline</span>
-            </div>
-            <p class="text-slate-400 leading-relaxed">
-              這是 VeloFlow 最花成本的地方。兩種路線：
-              <strong>路線 A (輕量模板)</strong>：用 Remotion / CapCut API 自動套用短影音模板＋AI 語音旁白 (ElevenLabs)。
-              <strong>路線 B (全 AI 生成)</strong>：串接可靈 Kling / Runway API 生成真實使用情境影片。
-            </p>
-            <span class="text-[11px] text-slate-500 block font-mono">推薦技術：Remotion (React 影音渲染)</span>
-          </div>
-
-          <!-- 模組 4 -->
-          <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
-            <div class="flex items-center justify-between">
-              <span class="font-bold text-emerald-300 text-sm">4. 帳號系統與收費訂閱</span>
-              <span class="px-2 py-0.5 rounded bg-emerald-900/50 text-emerald-300 text-[10px] font-bold">Commercial Layer</span>
-            </div>
-            <p class="text-slate-400 leading-relaxed">
-              前端使用 Next.js + Tailwind，後端使用 Supabase (PostgreSQL + Auth)，收費模組採用 Stripe 訂閱制（例如：每月 $990 元生成 50 支影片）。
-            </p>
-            <span class="text-[11px] text-slate-500 block font-mono">推薦架構：Next.js + Supabase + Stripe</span>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-slate-300">
+            <thead class="bg-slate-950 text-slate-400 font-semibold border-b border-slate-800">
+              <tr>
+                <th class="p-3">品項名稱</th>
+                <th class="p-3">建議售價</th>
+                <th class="p-3">落地成本</th>
+                <th class="p-3">單件淨利</th>
+                <th class="p-3">淨利率</th>
+                <th class="p-3">保本售價 (BEP)</th>
+                <th class="p-3">藍海指數</th>
+                <th class="p-3">決策評級</th>
+                <th class="p-3">操作</th>
+              </tr>
+            </thead>
+            <tbody id="compareTableBody" class="divide-y divide-slate-800/80">
+              <!-- JS 動態生成 -->
+            </tbody>
+          </table>
+          <div id="compareEmptyTip" class="py-8 text-center text-xs text-slate-500">
+            目前尚未加入任何品項。請點選上方商品卡片右下角的「➕ 加入 PK」進行橫向比對！
           </div>
         </div>
       </div>
@@ -460,16 +422,22 @@
 
   <!-- 核心資料與互動邏輯 -->
   <script>
-    // 預設資料庫：精準符合 A+B 體系的生活爆品
+    // 升級擴充：涵蓋 24H/7D/30D 時序、多維決策指標與短影音腳本的完整選品庫
     const RADAR_PRODUCTS = [
+      // 24H 突發爆款
       {
         id: 'p_jade',
+        timeframe: '24h',
         name: '天然粉晶雙頭滾輪＋刮痧板組',
         cat: 'care',
         cny: 7.8,
         price: 269,
         shipping: 16,
         growth: '+210%',
+        salesVol: '1,280 件/日',
+        oceanIndex: 88, // 藍海競爭指數 (0-100)
+        visualScore: 95, // 短影音吸睛力 (0-100)
+        grade: 'S 級核心主力',
         hook: '「早起臉沉得像沒睡醒？別再盲目喝黑咖啡了！這個冰冰涼涼的小動作，懂精緻保養的女孩都在偷偷做！」',
         pain: '早晨起床浮腫沒精神',
         persona: 'office_girl',
@@ -483,64 +451,447 @@
       },
       {
         id: 'p_rope',
+        timeframe: '24h',
         name: '高頻負重無繩跳繩 (靜音款)',
         cat: 'sport',
         cny: 11.5,
         price: 349,
         shipping: 20,
         growth: '+380%',
+        salesVol: '2,400 件/日',
+        oceanIndex: 92,
+        visualScore: 92,
+        grade: 'S 級爆款主力',
         hook: '「住公寓想運動又怕樓下鄰居上來敲門？換成這支無繩跳繩，在家穿著睡衣就能狂暴流汗！」',
         pain: '久坐滑手機肩頸僵硬',
         persona: 'fitness_beginner',
         storyboard: [
           { time: '0-3s', visual: '穿著居家服的女孩甩動傳統跳繩，繩子打到天花板發出噪音，一臉尷尬。', audio: '傳統跳繩不是打到天花板，就是怕樓下鄰居抗議！' },
-          { time: '3-7s', visual: '拿出粉嫩馬卡龍色無繩跳繩，大號負重實心球在空中平穩旋轉，完全無聲。', audio: '換成這款實心負重無繩款，完全不佔空間、零噪音！' },
+          { time: '3-7s', visual: '拿出粉嫩馬卡龙色無繩跳繩，大號負重實心球在空中平穩旋轉，完全無聲。', audio: '換成這款實心負重無繩款，完全不佔空間、零噪音！' },
           { time: '7-12s', visual: '女孩在客廳輕鬆跳躍，額頭冒出微汗，運動手錶顯示心率上升。', audio: '追劇看電視順便跳10分鐘，相當於慢跑半小時的爆汗快感～' },
           { time: '12-15s', visual: '雙向金屬軸承特寫，轉動滑順，彈出限時免運標籤。', audio: '租屋自律女孩人手一組，現在下單現省超商運費！' }
         ],
         prompt: 'Modern fitness lifestyle video, an athletic girl joyfully jumping with cordless weighted jump rope in her cozy apartment living room, dynamic lighting, high energy, crisp movements, 4k ultra hd.'
       },
       {
+        id: 'p_peanut',
+        timeframe: '24h',
+        name: '高密度筋膜舒緩花生球 (足底肩頸)',
+        cat: 'sport',
+        cny: 4.8,
+        price: 199,
+        shipping: 10,
+        growth: '+175%',
+        salesVol: '940 件/日',
+        oceanIndex: 85,
+        visualScore: 86,
+        grade: 'A 級高連帶配件',
+        hook: '「滑手機滑到肩頸像灌鉛？踩在腳底滾動三分鐘，整個人通體舒暢的感覺真的太爽了！」',
+        pain: '久坐滑手機肩頸僵硬',
+        persona: 'office_girl',
+        storyboard: [
+          { time: '0-3s', visual: '辦公室女孩揉著僵硬脖子，表情苦不堪言。', audio: '天天低頭盯電腦，肩膀硬得像石頭一樣？' },
+          { time: '3-7s', visual: '靠在牆上用硅膠花生球按壓後頸與肩胛骨，露出放鬆深呼吸神情。', audio: '靠著牆壁壓住這顆雙球，精準命中痛點深層舒緩！' },
+          { time: '7-12s', visual: '赤腳踩在花生球上，由前往後輕輕來回滾動腳底足弓。', audio: '回家踩在腳底滾一滾，整天的疲勞瞬間卸下一大半～' },
+          { time: '12-15s', visual: '手掌拿起馬卡龍色花生球特寫，彈出加價購 $99 標籤。', audio: '跳繩女孩購物車必帶，加價購百元有找帶回家！' }
+        ],
+        prompt: 'Minimalist aesthetic wellness shot, a woman relaxing her neck and feet with a pastel silicone massage ball in a warm sunlight room, soothing and comfortable vibe, 4k.'
+      },
+
+      // 7D 飆升成長榜
+      {
         id: 'p_scrubber',
-        name: '矽膠頭皮深層洗頭梳',
-        cat: 'care',
+        timeframe: '7d',
+        name: '矽膠頭皮深層洗頭梳 (食品級軟齒)',
+        cat: 'living',
         cny: 2.2,
         price: 49,
         shipping: 8,
         growth: '+145%',
+        salesVol: '5,800 件/週',
+        oceanIndex: 80,
+        visualScore: 88,
+        grade: 'A 級引流衝評款',
         hook: '「洗完頭隔天下午就出油扁塌？不是洗髮精不夠貴，是你從來沒真正洗乾淨頭皮！」',
         pain: '睡前焦慮難以放鬆',
         persona: 'office_girl',
         storyboard: [
-          { time: '0-3s', visual: '洗澡時手指抓頭髮，長指甲不小心扯斷髮絲的痛苦表情。', audio: '每次洗頭用指甲抓得頭皮好痛，頭髮還掉一堆？' },
+          { time: '0-3s', visual: '洗澡時手指抓頭髮，長指甲扯斷髮絲的痛苦表情。', audio: '每次洗頭用指甲抓得頭皮好痛，頭髮還掉一堆？' },
           { time: '3-7s', visual: '柔軟矽膠洗頭梳在濕髮上畫圈，瞬間爆出濃密如雲朵般的豐盈泡沫。', audio: '試試這款食品級全矽膠洗頭梳！輕輕搓揉就能爆出滿滿綿密泡泡！' },
           { time: '7-12s', visual: '特寫梳齒在頭皮輕柔按摩，洗淨每一處髮根油垢，神情超享受。', audio: '像給頭皮做了一次深度沙龍級 SPA，洗完髮根蓬鬆會呼吸～' },
           { time: '12-15s', visual: '乾淨俐落甩乾水珠，一沖即淨不卡頭髮，彈出加價購 $49 標籤。', audio: '銅板價只要幾十塊，全店滿額順手帶走它！' }
         ],
         prompt: 'ASMR bath aesthetic video, close up macro shot of soft pastel silicone scalp massager rubbing through silky hair with rich creamy lather foam, water droplets, luxurious bathroom atmosphere.'
+      },
+      {
+        id: 'p_mat',
+        timeframe: '7d',
+        name: '加厚高密 TPE 隔音跳繩減震小圓墊',
+        cat: 'sport',
+        cny: 8.5,
+        price: 249,
+        shipping: 22,
+        growth: '+120%',
+        salesVol: '3,200 件/週',
+        oceanIndex: 90,
+        visualScore: 82,
+        grade: 'A 級組合搭售款',
+        hook: '「租屋族跳繩最怕隔壁抗議！鋪上這張 8mm 加厚隔音圓墊，半夜跳繩樓下都聽不到！」',
+        pain: '久坐滑手機肩頸僵硬',
+        persona: 'fitness_beginner',
+        storyboard: [
+          { time: '0-3s', visual: '女孩在木地板跳躍發出震動聲，一臉擔心樓下抗議。', audio: '住公寓套房想運動，每次跳都怕吵到樓下鄰居？' },
+          { time: '3-7s', visual: '腳踩在加厚粉色小圓墊上，雞蛋掉落在墊子上毫無破損彈跳。', audio: '這塊 8mm 加厚減震墊，吸震降噪超給力！' },
+          { time: '7-12s', visual: '赤腳在小圓墊上輕盈跳繩，雙腳落地柔軟不震膝蓋。', audio: '保護腳踝膝蓋，小巧直徑客廳一鋪就能動～' },
+          { time: '12-15s', visual: '捲起收納於沙發縫隙，顯示跳繩組合折 $50 標籤。', audio: '搭配無繩跳繩一起下單現折 $50！' }
+        ],
+        prompt: 'Quiet indoor home workout scene, young girl jumping on high density pastel round fitness mat, egg dropping test showing shock absorption, bright and clean modern apartment.'
+      },
+
+      // 30D 穩定長銷榜
+      {
+        id: 'p_drybrush',
+        timeframe: '30d',
+        name: '天然豬鬃木柄乾刷 (歐美晨間煥膚)',
+        cat: 'care',
+        cny: 8.8,
+        price: 259,
+        shipping: 14,
+        growth: '+65%',
+        salesVol: '8,600 件/月',
+        oceanIndex: 94,
+        visualScore: 90,
+        grade: 'S 級高客單品',
+        hook: '「歐美名模都在偷偷做的乾刷法！洗澡前順著手臂輕輕刷兩分鐘，肌膚摸起來嫩得像豆腐！」',
+        pain: '晨間喚醒放鬆',
+        persona: 'office_girl',
+        storyboard: [
+          { time: '0-3s', visual: '晨光穿透浴室百葉窗，特寫天然豬鬃毛在原木手柄上的細膩質感。', audio: '洗澡前花兩分鐘乾刷，是很多精緻博主的私藏儀式！' },
+          { time: '3-7s', visual: '女孩手握木柄，順著手臂與腿部由下往上溫柔輕刷。', audio: '天然豬鬃毛軟硬適中，輕輕帶走老廢角質，膚觸超清爽～' },
+          { time: '7-12s', visual: '刷洗後肌膚散發自然健康透亮光澤，神情愜意自信。', audio: '洗完澡擦身體乳吸收快一倍，每天都像在家做 SPA！' },
+          { time: '12-15s', visual: '原木乾刷搭配棉麻束口袋特寫，顯示全店滿 $599 現折券。', audio: '滿調 RHYTHM 熱銷禮盒款，點擊連結即可擁有！' }
+        ],
+        prompt: 'Aesthetic Scandinavian lifestyle, beautiful Asian woman dry brushing her smooth arm with a wooden natural bristle brush before shower, soft warm sunlight, 4k ultra hd.'
+      },
+      {
+        id: 'p_towel',
+        timeframe: '30d',
+        name: '珊瑚絨秒吸水加厚刺繡乾髮帽',
+        cat: 'living',
+        cny: 3.2,
+        price: 79,
+        shipping: 6,
+        growth: '+48%',
+        salesVol: '14,200 件/月',
+        oceanIndex: 82,
+        visualScore: 84,
+        grade: 'A 級加購神物',
+        hook: '「長頭髮洗完吹半小時手超酸？包上這頂吸水乾髮帽，追一集劇頭髮已經八分乾了！」',
+        pain: '睡前焦慮難以放鬆',
+        persona: 'office_girl',
+        storyboard: [
+          { time: '0-3s', visual: '濕漉漉的長髮滴水，拿著吹風機吹得滿頭大汗手臂酸痛。', audio: '長頭髮洗完最怕吹頭髮，吹到手酸滿身大汗！' },
+          { time: '3-7s', visual: '套上鬆軟像雲朵般的厚實珊瑚絨乾髮帽，一扭一扣 3 秒固定。', audio: '換上這頂高密度珊瑚絨乾髮帽，秒速吸走髮絲水份！' },
+          { time: '7-12s', visual: '女孩敷著面膜輕鬆敷臉看書，解開帽子頭髮已蓬鬆微乾。', audio: '包著去敷面膜看電視，吹頭髮只要三分鐘搞定～' },
+          { time: '12-15s', visual: '洗頭梳 + 乾髮帽合售套裝跳出加購價 $49。', audio: '買洗頭梳順手加購，直接帶走超值沐浴組合！' }
+        ],
+        prompt: 'Cozy night routine scene, girl wearing a cute pastel plush hair towel wrap while applying facial cream, cozy aesthetic room, warm and relaxing.'
       }
     ];
 
-    // 違規敏感詞安全對照表
-    const ILLEGAL_RULES = [
-      { word: "消水腫", replace: "早晨舒緩、輔助護理" },
-      { word: "瘦臉", replace: "臉部線條按摩" },
-      { word: "提拉", replace: "向上溫柔推揉" },
-      { word: "排毒", replace: "沉浸式放鬆" },
-      { word: "經絡", replace: "日常放鬆" },
-      { word: "燃脂", replace: "規律自主運動管理" },
-      { word: "治療", replace: "日常舒適減壓" },
-      { word: "活血", replace: "溫潤親膚感" }
-    ];
+    // 狀態變數
+    let currentRadarTimeframe = '24h';
+    let currentRadarFilter = 'all';
+    let compareWatchlist = [];
 
-    let currentItem = JSON.parse(JSON.stringify(RADAR_PRODUCTS[0]));
+    // 渲染雷達卡片 (支援時序、品類、排序、搜尋與 PK 標記)
+    function renderRadarCards() {
+      const container = document.getElementById('radarCardsGrid');
+      container.innerHTML = '';
 
-    // 初始化載入
+      const searchKeyword = document.getElementById('radarSearchInput').value.toLowerCase().trim();
+      const sortOrder = document.getElementById('radarSortOrder').value;
+
+      let list = RADAR_PRODUCTS.filter(item => {
+        const matchTf = (item.timeframe === currentRadarTimeframe || !item.timeframe);
+        const matchCat = (currentRadarFilter === 'all' || item.cat === currentRadarFilter);
+        const matchSearch = (!searchKeyword || item.name.toLowerCase().includes(searchKeyword) || item.hook.toLowerCase().includes(searchKeyword));
+        return matchTf && matchCat && matchSearch;
+      });
+
+      // 排序機制
+      list.sort((a, b) => {
+        const netA = calcQuickNet(a);
+        const netB = calcQuickNet(b);
+        const marginA = (netA / a.price);
+        const marginB = (netB / b.price);
+
+        if (sortOrder === 'growth') {
+          return parseInt(b.growth.replace(/\D/g, '')) - parseInt(a.growth.replace(/\D/g, ''));
+        } else if (sortOrder === 'margin') {
+          return marginB - marginA;
+        } else if (sortOrder === 'ocean') {
+          return (b.oceanIndex || 80) - (a.oceanIndex || 80);
+        } else if (sortOrder === 'price_asc') {
+          return a.price - b.price;
+        } else if (sortOrder === 'price_desc') {
+          return b.price - a.price;
+        }
+        return 0;
+      });
+
+      // 更新頂部統計資訊
+      document.getElementById('radarStatCount').innerText = `${list.length} 款潛力爆品`;
+      if (list.length > 0) {
+        const avgMargin = list.reduce((acc, cur) => acc + ((calcQuickNet(cur) / cur.price) * 100), 0) / list.length;
+        document.getElementById('radarStatAvgMargin').innerText = `${avgMargin.toFixed(1)}%`;
+      }
+
+      if (list.length === 0) {
+        container.innerHTML = `<div class="col-span-3 py-16 text-center text-slate-500 text-xs">該時序與品類篩選下暫無商品，請調整條件或點擊「自訂選品沙盒」加入新貨品！</div>`;
+        return;
+      }
+
+      list.forEach(item => {
+        const costTwd = Math.round(item.cny * 4.6);
+        const quickNet = Math.round(calcQuickNet(item));
+        const marginPct = ((quickNet / item.price) * 100).toFixed(1);
+        const isCompared = compareWatchlist.some(x => x.id === item.id);
+
+        const card = document.createElement('div');
+        card.className = "bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl hover:border-brand-500/50 transition flex flex-col justify-between group";
+        card.innerHTML = `
+          <div>
+            <div class="flex justify-between items-start mb-2.5">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-950 text-brand-300 border border-brand-800/80">
+                  ${getCategoryLabel(item.cat)}
+                </span>
+                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+                  ${item.grade || 'S 級主力'}
+                </span>
+              </div>
+              <span class="text-xs font-black text-rose-400 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
+                ${item.growth} 帶貨增長
+              </span>
+            </div>
+
+            <h3 class="font-bold text-white text-sm mb-1 group-hover:text-brand-300 transition">${item.name}</h3>
+            <p class="text-xs text-slate-400 mb-3 line-clamp-2 leading-relaxed">${item.hook}</p>
+            
+            <!-- 核心商業數據網格 -->
+            <div class="grid grid-cols-2 gap-2 bg-slate-950 p-2.5 rounded-xl text-xs mb-3 border border-slate-800/80">
+              <div>
+                <span class="text-slate-500 block text-[10px]">1688 進價換算</span>
+                <span class="font-bold text-slate-300">¥${item.cny} <span class="text-[10px] font-normal text-slate-500">(~NT$${costTwd})</span></span>
+              </div>
+              <div>
+                <span class="text-slate-500 block text-[10px]">建議蝦皮售價</span>
+                <span class="font-bold text-brand-400">NT$ ${item.price}</span>
+              </div>
+              <div>
+                <span class="text-slate-500 block text-[10px]">單件預估純淨利</span>
+                <span class="font-bold text-emerald-400">NT$ ${quickNet}</span>
+              </div>
+              <div>
+                <span class="text-slate-500 block text-[10px]">預估淨利潤率</span>
+                <span class="font-bold ${marginPct >= 50 ? 'text-emerald-400' : 'text-amber-400'}">${marginPct}%</span>
+              </div>
+            </div>
+
+            <!-- 維度徽章標籤 -->
+            <div class="flex items-center gap-2 text-[10px] text-slate-400 mb-4">
+              <span class="bg-indigo-950/80 text-indigo-300 px-2 py-0.5 rounded border border-indigo-800/60 font-medium">
+                藍海指數: ${item.oceanIndex || 85}分
+              </span>
+              <span class="bg-purple-950/80 text-purple-300 px-2 py-0.5 rounded border border-purple-800/60 font-medium">
+                短影音吸睛: ${item.visualScore || 90}分
+              </span>
+            </div>
+          </div>
+
+          <div class="pt-3 border-t border-slate-800/80 grid grid-cols-2 gap-2">
+            <button onclick="selectRadarItem('${item.id}')" class="py-2 bg-slate-800 hover:bg-brand-600 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 shadow-sm">
+              <span>⚡ 導入影音工作室</span>
+            </button>
+            <button onclick="toggleCompareItem('${item.id}')" class="py-2 ${isCompared ? 'bg-rose-900/60 text-rose-300 border border-rose-700' : 'bg-slate-950 hover:bg-slate-800 text-slate-300 border border-slate-700'} rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1">
+              <span>${isCompared ? '✓ 已在比對中' : '➕ 加入 PK'}</span>
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // 計算預估單件淨利 (扣除落地成本與 16.5% 平台費)
+    function calcQuickNet(item) {
+      const landed = (item.cny * 4.6) + (item.shipping || 15);
+      const fee = (item.price * 0.165) + 2.5;
+      return item.price - landed - fee;
+    }
+
+    function getCategoryLabel(cat) {
+      if (cat === 'care') return '🧖‍♀️ 居家SPA保養';
+      if (cat === 'sport') return '🏃 輕量居家體態';
+      if (cat === 'living') return '🛁 沉浸日用儀式';
+      return '✨ 美學嚴選';
+    }
+
+    // 切換時序雷達
+    function setRadarTimeframe(tf) {
+      currentRadarTimeframe = tf;
+      document.querySelectorAll('.rtf-btn').forEach(btn => {
+        btn.classList.remove('bg-brand-600', 'text-white', 'font-bold');
+        btn.classList.add('text-slate-400');
+      });
+      const activeBtn = document.getElementById(`rtf-${tf}`);
+      if (activeBtn) {
+        activeBtn.classList.add('bg-brand-600', 'text-white', 'font-bold');
+        activeBtn.classList.remove('text-slate-400');
+      }
+      renderRadarCards();
+    }
+
+    // 切換品類過濾器
+    function setRadarFilter(cat) {
+      currentRadarFilter = cat;
+      document.querySelectorAll('.rf-btn').forEach(btn => {
+        btn.classList.remove('bg-brand-600/30', 'text-brand-300', 'border-brand-500/50', 'font-bold');
+        btn.classList.add('bg-slate-800', 'text-slate-400', 'border-slate-700/60');
+      });
+      const activeBtn = document.getElementById(`rf-${cat}`);
+      if (activeBtn) {
+        activeBtn.classList.add('bg-brand-600/30', 'text-brand-300', 'border-brand-500/50', 'font-bold');
+        activeBtn.classList.remove('bg-slate-800', 'text-slate-400', 'border-slate-700/60');
+      }
+      renderRadarCards();
+    }
+
+    // 開關自訂選品沙盒
+    function toggleCustomProductModal() {
+      const box = document.getElementById('customProductBox');
+      box.classList.toggle('hidden');
+    }
+
+    // 提交自訂商品進入雷達池
+    function submitCustomProductToRadar() {
+      const name = document.getElementById('cstName').value.trim();
+      const cat = document.getElementById('cstCat').value;
+      const cny = parseFloat(document.getElementById('cstCny').value) || 0;
+      const price = parseFloat(document.getElementById('cstPrice').value) || 0;
+      const shipping = parseFloat(document.getElementById('cstShipping').value) || 12;
+      const hook = document.getElementById('cstHook').value.trim();
+
+      if (!name || price <= 0 || cny <= 0) {
+        showToast('請完整輸入商品名稱、進價與售價！');
+        return;
+      }
+
+      const newId = 'custom_' + Date.now();
+      const customItem = {
+        id: newId,
+        timeframe: currentRadarTimeframe,
+        name: name,
+        cat: cat,
+        cny: cny,
+        price: price,
+        shipping: shipping,
+        growth: '+100% (新收錄)',
+        oceanIndex: 90,
+        visualScore: 88,
+        grade: 'S 級自選新星',
+        hook: hook || `「你還在為挑不到好物煩惱？試試這款【${name}】，精緻女孩的生活美學標配！」`,
+        pain: '日常自我放鬆',
+        persona: 'office_girl',
+        storyboard: [
+          { time: '0-3s', visual: `特寫【${name}】拆開包裝的高質感細節。`, audio: `還在觀望？這款最近被瘋搶的【${name}】真的太值了！` },
+          { time: '3-7s', visual: `實際在日常情境中使用【${name}】，動作滑順優雅。`, audio: `手感溫潤自然，用起來既省時又非常療癒放鬆～` },
+          { time: '7-12s', visual: `使用後整個人身心放鬆神情，對鏡微笑。`, audio: `每天給自己保留幾分鐘沉浸時光，真的會愛上這種生活節奏！` },
+          { time: '12-15s', visual: `畫面定格優惠券與商品精美外觀。`, audio: `現正開幕特惠免運中，現在下單直接現折！` }
+        ],
+        prompt: `Cinematic high-end product commercial video for ${name}, elegant modern indoor environment, warm studio lighting, 4k photorealistic.`
+      };
+
+      RADAR_PRODUCTS.unshift(customItem);
+      toggleCustomProductModal();
+      renderRadarCards();
+      showToast(`已成功收錄【${name}】至選品情報庫！`);
+    }
+
+    // 橫向 PK 對比庫切換與渲染
+    function toggleCompareItem(id) {
+      const found = RADAR_PRODUCTS.find(x => x.id === id);
+      if (!found) return;
+
+      const idx = compareWatchlist.findIndex(x => x.id === id);
+      if (idx > -1) {
+        compareWatchlist.splice(idx, 1);
+        showToast(`已自比對庫移除【${found.name}】`);
+      } else {
+        if (compareWatchlist.length >= 6) {
+          showToast('PK 對比庫最多同時支援 6 款商品！');
+          return;
+        }
+        compareWatchlist.push(found);
+        showToast(`已將【${found.name}】加入 PK 對比庫！`);
+      }
+
+      renderRadarCards();
+      renderCompareTable();
+    }
+
+    function renderCompareTable() {
+      const tbody = document.getElementById('compareTableBody');
+      const emptyTip = document.getElementById('compareEmptyTip');
+      const badge = document.getElementById('compareCountBadge');
+
+      badge.innerText = `已加入 ${compareWatchlist.length} 款`;
+      tbody.innerHTML = '';
+
+      if (compareWatchlist.length === 0) {
+        emptyTip.classList.remove('hidden');
+        return;
+      }
+
+      emptyTip.classList.add('hidden');
+
+      compareWatchlist.forEach((item, index) => {
+        const landedCost = Math.round((item.cny * 4.6) + (item.shipping || 15));
+        const quickNet = Math.round(calcQuickNet(item));
+        const marginPct = ((quickNet / item.price) * 100).toFixed(1);
+        const bep = Math.ceil((landedCost + 2.5) / (1 - 0.165));
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-950/60 transition";
+        tr.innerHTML = `
+          <td class="p-3 font-bold text-white">${item.name}</td>
+          <td class="p-3 font-semibold text-brand-300">NT$ ${item.price}</td>
+          <td class="p-3 text-slate-400">NT$ ${landedCost}</td>
+          <td class="p-3 font-bold text-emerald-400">NT$ ${quickNet}</td>
+          <td class="p-3 font-black ${marginPct >= 50 ? 'text-emerald-400' : 'text-amber-400'}">${marginPct}%</td>
+          <td class="p-3 text-slate-300">NT$ ${bep}</td>
+          <td class="p-3 text-indigo-300 font-semibold">${item.oceanIndex || 85} 分</td>
+          <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-200 border border-slate-700">${item.grade || 'S 級爆款'}</span></td>
+          <td class="p-3">
+            <button onclick="toggleCompareItem('${item.id}')" class="text-rose-400 hover:text-rose-300">移除</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function clearCompareList() {
+      compareWatchlist = [];
+      renderRadarCards();
+      renderCompareTable();
+      showToast('比對庫已清空！');
+    }
+
+    // 初始化頁面調用
     window.addEventListener('DOMContentLoaded', () => {
-      renderRadarCards('all');
-      renderCurrentVideoPackage();
-      calcFinance();
-      runComplianceScan();
+      setRadarTimeframe('24h');
+      renderCompareTable();
     });
 
     // 渲染雷達卡片
