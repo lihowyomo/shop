@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VeloFlow 原型｜AI 電商爆款矩陣與帶貨影音工作室</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f5f3ff',
+              100: '#ede9fe',
+              500: '#8b5cf6',
+              600: '#7c3aed',
+              700: '#6d28d9',
+              900: '#4c1d95',
+            },
+            shopee: '#ee4d2d'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+    body { font-family: 'Plus Jakarta Sans', 'Noto Sans TC', system-ui, sans-serif; }
+    .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-brand-500 selection:text-white">
+
+  <!-- 通知 Toast 浮動視窗 (替代原生 alert) -->
+  <div id="toastNotification" class="fixed top-5 right-5 z-50 transform translate-y-[-150%] opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-2.5 bg-slate-900 border border-slate-700 text-white px-4 py-3 rounded-2xl shadow-2xl text-xs font-semibold">
+    <span id="toastIcon" class="text-base">✨</span>
+    <span id="toastMessage">操作成功</span>
+  </div>
+
+  <!-- 頂部商業 SaaS 導航欄 -->
+  <header class="bg-slate-900/90 border-b border-slate-800 sticky top-0 z-40 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap justify-between items-center gap-3">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 via-indigo-500 to-shopee flex items-center justify-center text-white font-black text-xl shadow-lg shadow-brand-500/20 ring-1 ring-white/20">
+          V
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base sm:text-lg font-black tracking-tight text-white flex items-center gap-1.5">
+              VeloFlow 概念架構
+              <span class="text-[10px] bg-brand-500/20 text-brand-300 border border-brand-500/30 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                AI 電商鐵軍版
+              </span>
+            </h1>
+          </div>
+          <p class="text-xs text-slate-400">選品情報探測 ． 帶貨短影音分鏡 ． 台灣合規洗白 ． 實時利潤精算</p>
+        </div>
+      </div>
+
+      <!-- 快捷操作與商業模式入口 -->
+      <div class="flex items-center gap-2">
+        <button onclick="switchTab('tab-architecture')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold py-2 px-3 rounded-xl transition flex items-center gap-1.5">
+          <span>🛠️</span>
+          <span>App 開發架構藍圖</span>
+        </button>
+        <button onclick="runAutoPipeline()" class="text-xs bg-gradient-to-r from-brand-600 to-shopee hover:opacity-95 text-white font-bold py-2 px-3.5 rounded-xl transition flex items-center gap-1.5 shadow-md shadow-brand-500/20">
+          <span class="animate-pulse">⚡</span>
+          <span>一鍵跑通選品到影音</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 模組標籤導航欄 -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 flex space-x-1 sm:space-x-3 border-t border-slate-800/80 overflow-x-auto text-xs font-semibold">
+      <button onclick="switchTab('tab-video-studio')" id="btn-tab-video-studio" class="tab-btn py-3 px-3.5 border-b-2 font-bold text-brand-400 border-brand-500 flex items-center gap-1.5 whitespace-nowrap transition">
+        <span>🎬</span> AI 帶貨影音工作室
+      </button>
+      <button onclick="switchTab('tab-radar')" id="btn-tab-radar" class="tab-btn py-3 px-3.5 border-b-2 text-slate-400 border-transparent hover:text-slate-200 flex items-center gap-1.5 whitespace-nowrap transition">
+        <span>🔥</span> 爆品探測雷達
+      </button>
+      <button onclick="switchTab('tab-compliance')" id="btn-tab-compliance" class="tab-btn py-3 px-3.5 border-b-2 text-slate-400 border-transparent hover:text-slate-200 flex items-center gap-1.5 whitespace-nowrap transition">
+        <span>🛡️</span> 台灣法規洗白雷達
+      </button>
+      <button onclick="switchTab('tab-finance')" id="btn-tab-finance" class="tab-btn py-3 px-3.5 border-b-2 text-slate-400 border-transparent hover:text-slate-200 flex items-center gap-1.5 whitespace-nowrap transition">
+        <span>💰</span> 蝦皮抽成利潤模型
+      </button>
+      <button onclick="switchTab('tab-architecture')" id="btn-tab-architecture" class="tab-btn py-3 px-3.5 border-b-2 text-slate-400 border-transparent hover:text-slate-200 flex items-center gap-1.5 whitespace-nowrap transition">
+        <span>🚀</span> 如何做成真實 App？
+      </button>
+    </div>
+  </header>
+
+  <!-- 主內容工作區 -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex-1 w-full space-y-6">
+
+    <!-- ================= TAB 1: AI 帶貨影音工作室 (核心生成模組) ================= -->
+    <div id="tab-video-studio" class="tab-content space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- 左側：輸入與控制台 (4 Cols) -->
+        <div class="lg:col-span-4 bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-5 shadow-xl">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+              <h2 class="text-sm font-bold text-white flex items-center gap-1.5">
+                <span>🤖</span> AI 爆款短影音生成器
+              </h2>
+              <p class="text-[11px] text-slate-400">專為蝦皮短片 / TikTok 演算法調優</p>
+            </div>
+            <span class="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800/80 px-2 py-0.5 rounded-full font-bold">
+              Prompt V3.2
+            </span>
+          </div>
+
+          <!-- 商品名稱輸入 -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">目標帶貨商品</label>
+            <input type="text" id="studioProdName" value="天然粉晶雙頭滾輪＋刮痧板組" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+          </div>
+
+          <!-- 核心受眾與痛點 -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1.5">目標客群 (Persona)</label>
+              <select id="studioPersona" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                <option value="office_girl">25-35 歲都會精緻女孩</option>
+                <option value="fitness_beginner">居家輕運動自律族</option>
+                <option value="busy_mom">忙碌育兒/舒壓媽咪</option>
+                <option value="college_student">大學宿舍小資女</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1.5">主打黃金痛點</label>
+              <select id="studioPainPoint" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                <option value="morning_puff">早晨起床浮腫沒精神</option>
+                <option value="neck_tired">久坐滑手機肩頸僵硬</option>
+                <option value="bedtime_stress">睡前焦慮難以放鬆</option>
+                <option value="skincare_waste">高價保養品吸收不佳</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 短影音風格節奏 -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">影片風格與調性</label>
+            <div class="grid grid-cols-2 gap-2">
+              <label class="flex items-center gap-2 p-2.5 bg-slate-800/80 rounded-xl border border-slate-700/80 cursor-pointer hover:border-brand-500 transition">
+                <input type="radio" name="videoStyle" value="asmr_spa" checked class="text-brand-500 focus:ring-brand-500">
+                <span class="text-xs text-slate-200 font-medium">沉浸式 ASMR 儀式感</span>
+              </label>
+              <label class="flex items-center gap-2 p-2.5 bg-slate-800/80 rounded-xl border border-slate-700/80 cursor-pointer hover:border-brand-500 transition">
+                <input type="radio" name="videoStyle" value="punchy_hook" class="text-brand-500 focus:ring-brand-500">
+                <span class="text-xs text-slate-200 font-medium">前3秒強衝擊反差</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- 生成按鈕 -->
+          <button onclick="generateAiVideoPackage()" id="btnGenerateAi" class="w-full py-2.5 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-brand-500/30">
+            <span id="genIcon">✨</span>
+            <span id="genText">一鍵生成帶貨分鏡與合規腳本</span>
+          </button>
+
+          <!-- 快速切換預設案例 -->
+          <div class="pt-2 border-t border-slate-800 text-[11px] text-slate-400 flex items-center justify-between">
+            <span>填入推薦品項：</span>
+            <div class="flex gap-1.5">
+              <button onclick="quickFillStudio('天然粉晶雙頭滾輪組', 'office_girl', 'morning_puff')" class="hover:text-brand-300 underline">粉晶滾輪</button>
+              <span>•</span>
+              <button onclick="quickFillStudio('高頻負重無繩跳繩', 'fitness_beginner', 'neck_tired')" class="hover:text-brand-300 underline">無繩跳繩</button>
+              <span>•</span>
+              <button onclick="quickFillStudio('矽膠頭皮深層洗頭梳', 'office_girl', 'bedtime_stress')" class="hover:text-brand-300 underline">洗頭梳</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右側：生成的腳本、分鏡卡與 AI 影片 Prompt (8 Cols) -->
+        <div class="lg:col-span-8 space-y-5">
+          
+          <!-- 成果頂部：前3秒爆款 Hook 與帶貨標題 -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+              <div class="flex items-center gap-2">
+                <span class="text-xs bg-rose-500/20 text-rose-400 border border-rose-500/30 px-2 py-0.5 rounded-md font-bold">
+                  💥 3秒致死率 HOOK
+                </span>
+                <span class="text-xs text-slate-400">買家滑動停留率核心</span>
+              </div>
+              <button onclick="copyToClipboard('hookContent', 'Hook 文案已複製')" class="text-[11px] text-brand-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded-lg border border-slate-700 transition">
+                複製 Hook
+              </button>
+            </div>
+            
+            <p id="hookContent" class="text-sm sm:text-base font-bold text-white bg-slate-950/70 p-3.5 rounded-xl border border-slate-800 text-rose-100">
+              「早起臉沉得像沒睡醒？別再盲目喝黑咖啡了！這個冰冰涼涼的小動作，懂精緻保養的女孩都在偷偷做！」
+            </p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div class="bg-slate-950/40 p-3 rounded-xl border border-slate-800/80">
+                <span class="text-slate-400 block text-[10px] mb-1">蝦皮短片 / TikTok 爆款標題</span>
+                <p id="videoTitleContent" class="font-bold text-slate-200">
+                  早晨3分鐘喚醒神仙顏值！天然冰感撫平早起沉重感 ✨ #生活美學 #自我寵愛
+                </p>
+              </div>
+              <div class="bg-slate-950/40 p-3 rounded-xl border border-slate-800/80">
+                <span class="text-slate-400 block text-[10px] mb-1">合規性檢測結果</span>
+                <p id="videoComplianceTag" class="font-bold text-emerald-400 flex items-center gap-1">
+                  <span>✅</span> 100% 零違法醫療詞彙，可直接上傳廣告
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4段式帶貨分鏡表 (Storyboard) -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span>🎞️</span> 15秒黃金帶貨分鏡腳本 (Storyboard Pipeline)
+              </h3>
+              <button onclick="copyFullScript()" class="text-[11px] text-brand-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded-lg border border-slate-700 transition">
+                一鍵複製整篇腳本
+              </button>
+            </div>
+
+            <!-- 分鏡卡片網格 -->
+            <div id="storyboardContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <!-- JS 動態生成分鏡 -->
+            </div>
+          </div>
+
+          <!-- 給 AI 影片模型 (Sora / Kling / Runway) 的純英文提示詞 Prompt -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+              <span class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                <span>🤖</span> AI 影片生成模型 Prompt (可直接丟 Runway / 可靈 Kling)
+              </span>
+              <button onclick="copyToClipboard('aiVideoPromptText', 'AI 影片 Prompt 已複製')" class="text-[11px] text-brand-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded-lg border border-slate-700 transition">
+                複製英文 Prompt
+              </button>
+            </div>
+            <textarea id="aiVideoPromptText" rows="3" readonly class="w-full bg-slate-950 text-slate-300 text-[11px] p-3 rounded-xl border border-slate-800 font-mono focus:outline-none select-all"></textarea>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= TAB 2: 爆品探測雷達 (市場數據源) ================= -->
+    <div id="tab-radar" class="tab-content hidden space-y-6">
+      <div class="bg-slate-900 rounded-2xl p-5 border border-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h2 class="text-sm font-bold text-white flex items-center gap-2">
+            <span>🔥</span> 24H / 7D / 30D 動態爆款選品情報庫
+          </h2>
+          <p class="text-xs text-slate-400 mt-0.5">點擊卡片，直接將商品情報同步導入 AI 影音工作室與財務計算機</p>
+        </div>
+
+        <div class="flex items-center gap-2 text-xs">
+          <button onclick="setRadarFilter('all')" id="rf-all" class="rf-btn px-3 py-1.5 rounded-lg bg-brand-600 text-white font-bold transition">全部品類</button>
+          <button onclick="setRadarFilter('care')" id="rf-care" class="rf-btn px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition">居家保養</button>
+          <button onclick="setRadarFilter('sport')" id="rf-sport" class="rf-btn px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition">輕量體態</button>
+        </div>
+      </div>
+
+      <!-- 雷達卡片瀑布流 -->
+      <div id="radarCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <!-- JS 動態生成 -->
+      </div>
+    </div>
+
+    <!-- ================= TAB 3: 台灣法規洗白雷達 (合規模組) ================= -->
+    <div id="tab-compliance" class="tab-content hidden space-y-6">
+      <div class="bg-slate-900 rounded-2xl p-6 border border-slate-800 space-y-5">
+        <div class="border-b border-slate-800 pb-4">
+          <h2 class="text-sm font-bold text-white flex items-center gap-2">
+            <span>🛡️</span> 衛福部文案法規高危字詞「自動洗白」沙盒
+          </h2>
+          <p class="text-xs text-slate-400 mt-1">
+            專門針對美容刮痧、筋膜按摩、輕運動用品，在輸入任何短影音字幕或商品描述時，一秒偵測開罰風險並自動替換為合法美學用詞。
+          </p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">待檢測文案輸入框：</label>
+          <textarea id="complianceInput" rows="4" oninput="runComplianceScan()" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs sm:text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="輸入文案，例如：這款滾輪能排毒消水腫、瘦臉提拉下巴，還能疏通經絡活血..."></textarea>
+        </div>
+
+        <!-- 掃描結果回饋 -->
+        <div id="complianceResultCard" class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-300">雷達掃描狀態：</span>
+            <span id="complianceBadge" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-400">尚未輸入文字</span>
+          </div>
+          <div id="complianceMatchedBadges" class="flex flex-wrap gap-2"></div>
+          <div id="complianceRewrittenBox" class="p-3 bg-slate-900 rounded-lg text-xs text-slate-300 space-y-1">
+            <p class="text-slate-500">掃描建議將在此處展開...</p>
+          </div>
+        </div>
+
+        <!-- 快速一鍵套用洗白文案 -->
+        <div class="flex justify-end">
+          <button onclick="applyComplianceCleanText()" id="btnApplyCleanText" class="hidden text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-4 rounded-xl transition">
+            ✨ 一鍵將合規洗白文案同步到影音工作室
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= TAB 4: 蝦皮利潤核算模型 (商業後台) ================= -->
+    <div id="tab-finance" class="tab-content hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- 左側輸入 -->
+        <div class="lg:col-span-7 bg-slate-900 rounded-2xl p-6 border border-slate-800 space-y-5">
+          <h2 class="text-sm font-bold text-white border-b border-slate-800 pb-3">2026 蝦皮平台費率真實成本核算</h2>
+          
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">1688 進貨價 (RMB)</label>
+              <input type="number" id="finCny" value="7.8" step="0.1" oninput="calcFinance()" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">匯率 (RMB $\rightarrow$ TWD)</label>
+              <input type="number" id="finFx" value="4.6" step="0.05" oninput="calcFinance()" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">蝦皮預計促銷售價 (NT$)</label>
+              <input type="number" id="finPrice" value="269" oninput="calcFinance()" class="w-full bg-slate-800 border border-brand-500/50 rounded-xl px-3 py-2 text-xs font-bold text-brand-300">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">單件頭程空運+耗材 (NT$)</label>
+              <input type="number" id="finShipping" value="16" oninput="calcFinance()" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+            </div>
+          </div>
+
+          <div class="pt-3 border-t border-slate-800 space-y-2.5">
+            <span class="text-xs font-bold text-slate-400">平台活動扣繳勾選：</span>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <label class="flex items-center gap-2 p-2.5 bg-slate-800/80 rounded-xl border border-slate-700/80 cursor-pointer">
+                <input type="checkbox" id="finFreeShip" checked onchange="calcFinance()" class="text-brand-500 focus:ring-brand-500">
+                <span>全店免運方案 (+6%)</span>
+              </label>
+              <label class="flex items-center gap-2 p-2.5 bg-slate-800/80 rounded-xl border border-slate-700/80 cursor-pointer">
+                <input type="checkbox" id="finCoins" checked onchange="calcFinance()" class="text-brand-500 focus:ring-brand-500">
+                <span>10% 蝦幣回饋 (+3%)</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右側財務快照 -->
+        <div class="lg:col-span-5 bg-gradient-to-br from-slate-900 to-slate-950 rounded-2xl p-6 border border-slate-800 flex flex-col justify-between">
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Net Profit Breakdown</span>
+          
+          <div class="space-y-3 my-4 text-xs">
+            <div class="flex justify-between py-1 border-b border-slate-800/60">
+              <span class="text-slate-400">採購加總落地成本</span>
+              <span id="resTotalCost" class="font-semibold text-white">NT$ 51.9</span>
+            </div>
+            <div class="flex justify-between py-1 border-b border-slate-800/60">
+              <span class="text-slate-400">平台總抽成比例 (含活動)</span>
+              <span id="resTotalRate" class="font-bold text-shopee">16.5%</span>
+            </div>
+            <div class="flex justify-between py-1 border-b border-slate-800/60">
+              <span class="text-slate-400">平台各項手續費+發票</span>
+              <span id="resFeeTotal" class="font-semibold text-rose-400">NT$ 46.9</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-dashed border-slate-700">
+              <span class="text-sm font-bold text-white">單單實拿純淨利</span>
+              <span id="resNetProfit" class="text-base font-black text-emerald-400">NT$ 170.2</span>
+            </div>
+            <div class="flex justify-between py-1">
+              <span class="text-slate-400">純淨利潤率 (Margin)</span>
+              <span id="resMargin" class="text-sm font-black text-emerald-400">63.3%</span>
+            </div>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-xs">
+            <div class="flex justify-between items-baseline">
+              <span class="text-slate-400">保本售價門檻 (BEP)</span>
+              <span id="resBep" class="font-bold text-white">NT$ 66</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ================= TAB 5: 如何做成真實 App (商業與技術架構圖) ================= -->
+    <div id="tab-architecture" class="tab-content hidden space-y-6">
+      <div class="bg-slate-900 rounded-2xl p-6 border border-slate-800 space-y-6">
+        <div>
+          <h2 class="text-base font-bold text-white flex items-center gap-2">
+            <span>🏗️</span> 如何打造一個類似 VeloFlow.ai 的商業級 App？
+          </h2>
+          <p class="text-xs text-slate-400 mt-1">
+            從單純自用到對外收費（SaaS 訂閱制）的 4 大核心技術模組與 API 對齊表。
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs">
+          <!-- 模組 1 -->
+          <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-brand-300 text-sm">1. 爆款數據與選品爬蟲層</span>
+              <span class="px-2 py-0.5 rounded bg-brand-900/50 text-brand-300 text-[10px] font-bold">Data Layer</span>
+            </div>
+            <p class="text-slate-400 leading-relaxed">
+              透過 Python (Playwright / Scrapy) 定時抓取蝦皮熱銷榜、抖音帶貨榜與 1688 圖片搜尋 API。儲存為結構化商品池（價格、銷量、評價數、主圖）。
+            </p>
+            <span class="text-[11px] text-slate-500 block font-mono">推薦API：1688 開放平台、Apify 蝦皮爬蟲庫</span>
+          </div>
+
+          <!-- 模組 2 -->
+          <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-indigo-300 text-sm">2. AI 大腦與分鏡腳本調度</span>
+              <span class="px-2 py-0.5 rounded bg-indigo-900/50 text-indigo-300 text-[10px] font-bold">LLM Brain</span>
+            </div>
+            <p class="text-slate-400 leading-relaxed">
+              使用大型語言模型（如 Gemini 1.5/2.0 Flash）調度 Prompt 模板，將商品賣點拆解為「前3秒 Hook ＋ 痛點 ＋ 解決方案 ＋ 行動呼籲」，並自動進行台灣衛福部廣告詞合規過濾。
+            </p>
+            <span class="text-[11px] text-slate-500 block font-mono">推薦API：Google Gemini API (低成本快速)</span>
+          </div>
+
+          <!-- 模組 3 -->
+          <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-pink-300 text-sm">3. 影音合成與自動剪輯渲染</span>
+              <span class="px-2 py-0.5 rounded bg-pink-900/50 text-pink-300 text-[10px] font-bold">Video Pipeline</span>
+            </div>
+            <p class="text-slate-400 leading-relaxed">
+              這是 VeloFlow 最花成本的地方。兩種路線：
+              <strong>路線 A (輕量模板)</strong>：用 Remotion / CapCut API 自動套用短影音模板＋AI 語音旁白 (ElevenLabs)。
+              <strong>路線 B (全 AI 生成)</strong>：串接可靈 Kling / Runway API 生成真實使用情境影片。
+            </p>
+            <span class="text-[11px] text-slate-500 block font-mono">推薦技術：Remotion (React 影音渲染)</span>
+          </div>
+
+          <!-- 模組 4 -->
+          <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-emerald-300 text-sm">4. 帳號系統與收費訂閱</span>
+              <span class="px-2 py-0.5 rounded bg-emerald-900/50 text-emerald-300 text-[10px] font-bold">Commercial Layer</span>
+            </div>
+            <p class="text-slate-400 leading-relaxed">
+              前端使用 Next.js + Tailwind，後端使用 Supabase (PostgreSQL + Auth)，收費模組採用 Stripe 訂閱制（例如：每月 $990 元生成 50 支影片）。
+            </p>
+            <span class="text-[11px] text-slate-500 block font-mono">推薦架構：Next.js + Supabase + Stripe</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- 核心資料與互動邏輯 -->
+  <script>
+    // 預設資料庫：精準符合 A+B 體系的生活爆品
+    const RADAR_PRODUCTS = [
+      {
+        id: 'p_jade',
+        name: '天然粉晶雙頭滾輪＋刮痧板組',
+        cat: 'care',
+        cny: 7.8,
+        price: 269,
+        shipping: 16,
+        growth: '+210%',
+        hook: '「早起臉沉得像沒睡醒？別再盲目喝黑咖啡了！這個冰冰涼涼的小動作，懂精緻保養的女孩都在偷偷做！」',
+        pain: '早晨起床浮腫沒精神',
+        persona: 'office_girl',
+        storyboard: [
+          { time: '0-3s', visual: '鬧鐘響起，特寫女孩剛醒微沉的眼周，鏡頭快速切換至放在冰塊旁的天然粉晶滾輪。', audio: '（清脆冰塊聲）早起臉沉沉的？別再死灌黑咖啡啦！' },
+          { time: '3-7s', visual: '粉晶滾輪順著下顎線條緩慢溫柔地向上滑動，溫潤天然光澤折射。', audio: '用這支冰鎮過的天然粉晶，由下往上推個三分鐘，觸感冰涼又舒服～' },
+          { time: '7-12s', visual: '拿起心形刮痧板在肩頸兩側輕柔滑撫，整個人露出放鬆愜意的微笑。', audio: '肩頸緊繃也能順手舒壓，像在家享受專屬 SPA 一樣放鬆！' },
+          { time: '12-15s', visual: '女孩自信對鏡子微笑，畫面定格精緻禮盒包裝與左下角購物車圖標。', audio: '今天官方開幕現折只要兩百多，趁優惠手刀帶走！' }
+        ],
+        prompt: 'Cinematic high-end commercial video, close up shot of a young beautiful Asian woman using a premium rose quartz roller on her glowing skin in a minimalist bedroom, natural warm morning sunlight, serene and calming vibe, 4k photorealistic.'
+      },
+      {
+        id: 'p_rope',
+        name: '高頻負重無繩跳繩 (靜音款)',
+        cat: 'sport',
+        cny: 11.5,
+        price: 349,
+        shipping: 20,
+        growth: '+380%',
+        hook: '「住公寓想運動又怕樓下鄰居上來敲門？換成這支無繩跳繩，在家穿著睡衣就能狂暴流汗！」',
+        pain: '久坐滑手機肩頸僵硬',
+        persona: 'fitness_beginner',
+        storyboard: [
+          { time: '0-3s', visual: '穿著居家服的女孩甩動傳統跳繩，繩子打到天花板發出噪音，一臉尷尬。', audio: '傳統跳繩不是打到天花板，就是怕樓下鄰居抗議！' },
+          { time: '3-7s', visual: '拿出粉嫩馬卡龍色無繩跳繩，大號負重實心球在空中平穩旋轉，完全無聲。', audio: '換成這款實心負重無繩款，完全不佔空間、零噪音！' },
+          { time: '7-12s', visual: '女孩在客廳輕鬆跳躍，額頭冒出微汗，運動手錶顯示心率上升。', audio: '追劇看電視順便跳10分鐘，相當於慢跑半小時的爆汗快感～' },
+          { time: '12-15s', visual: '雙向金屬軸承特寫，轉動滑順，彈出限時免運標籤。', audio: '租屋自律女孩人手一組，現在下單現省超商運費！' }
+        ],
+        prompt: 'Modern fitness lifestyle video, an athletic girl joyfully jumping with cordless weighted jump rope in her cozy apartment living room, dynamic lighting, high energy, crisp movements, 4k ultra hd.'
+      },
+      {
+        id: 'p_scrubber',
+        name: '矽膠頭皮深層洗頭梳',
+        cat: 'care',
+        cny: 2.2,
+        price: 49,
+        shipping: 8,
+        growth: '+145%',
+        hook: '「洗完頭隔天下午就出油扁塌？不是洗髮精不夠貴，是你從來沒真正洗乾淨頭皮！」',
+        pain: '睡前焦慮難以放鬆',
+        persona: 'office_girl',
+        storyboard: [
+          { time: '0-3s', visual: '洗澡時手指抓頭髮，長指甲不小心扯斷髮絲的痛苦表情。', audio: '每次洗頭用指甲抓得頭皮好痛，頭髮還掉一堆？' },
+          { time: '3-7s', visual: '柔軟矽膠洗頭梳在濕髮上畫圈，瞬間爆出濃密如雲朵般的豐盈泡沫。', audio: '試試這款食品級全矽膠洗頭梳！輕輕搓揉就能爆出滿滿綿密泡泡！' },
+          { time: '7-12s', visual: '特寫梳齒在頭皮輕柔按摩，洗淨每一處髮根油垢，神情超享受。', audio: '像給頭皮做了一次深度沙龍級 SPA，洗完髮根蓬鬆會呼吸～' },
+          { time: '12-15s', visual: '乾淨俐落甩乾水珠，一沖即淨不卡頭髮，彈出加價購 $49 標籤。', audio: '銅板價只要幾十塊，全店滿額順手帶走它！' }
+        ],
+        prompt: 'ASMR bath aesthetic video, close up macro shot of soft pastel silicone scalp massager rubbing through silky hair with rich creamy lather foam, water droplets, luxurious bathroom atmosphere.'
+      }
+    ];
+
+    // 違規敏感詞安全對照表
+    const ILLEGAL_RULES = [
+      { word: "消水腫", replace: "早晨舒緩、輔助護理" },
+      { word: "瘦臉", replace: "臉部線條按摩" },
+      { word: "提拉", replace: "向上溫柔推揉" },
+      { word: "排毒", replace: "沉浸式放鬆" },
+      { word: "經絡", replace: "日常放鬆" },
+      { word: "燃脂", replace: "規律自主運動管理" },
+      { word: "治療", replace: "日常舒適減壓" },
+      { word: "活血", replace: "溫潤親膚感" }
+    ];
+
+    let currentItem = JSON.parse(JSON.stringify(RADAR_PRODUCTS[0]));
+
+    // 初始化載入
+    window.addEventListener('DOMContentLoaded', () => {
+      renderRadarCards('all');
+      renderCurrentVideoPackage();
+      calcFinance();
+      runComplianceScan();
+    });
+
+    // 渲染雷達卡片
+    function renderRadarCards(filter) {
+      const container = document.getElementById('radarCardsGrid');
+      container.innerHTML = '';
+
+      let list = RADAR_PRODUCTS;
+      if (filter !== 'all') {
+        list = list.filter(x => x.cat === filter);
+      }
+
+      list.forEach(item => {
+        const card = document.createElement('div');
+        card.className = "bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl hover:border-brand-500/50 transition flex flex-col justify-between";
+        card.innerHTML = `
+          <div>
+            <div class="flex justify-between items-start mb-2">
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-900/50 text-brand-300 border border-brand-700/50">
+                ${item.cat === 'care' ? '🧖‍♀️ 居家保養' : '🏃 輕量體態'}
+              </span>
+              <span class="text-xs font-black text-rose-400">${item.growth} 帶貨增長</span>
+            </div>
+            <h3 class="font-bold text-white text-sm mb-1">${item.name}</h3>
+            <p class="text-xs text-slate-400 mb-3 line-clamp-2">${item.hook}</p>
+            
+            <div class="grid grid-cols-2 gap-2 bg-slate-950 p-2.5 rounded-xl text-xs mb-4 border border-slate-800">
+              <div>
+                <span class="text-slate-500 block text-[10px]">1688 進貨底價</span>
+                <span class="font-bold text-slate-300">¥${item.cny}</span>
+              </div>
+              <div>
+                <span class="text-slate-500 block text-[10px]">建議蝦皮價</span>
+                <span class="font-bold text-brand-400">NT$ ${item.price}</span>
+              </div>
+            </div>
+          </div>
+
+          <button onclick="selectRadarItem('${item.id}')" class="w-full py-2 bg-slate-800 hover:bg-brand-600 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm">
+            <span>⚡ 導入影音工作室生成</span>
+          </button>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function setRadarFilter(filter) {
+      document.querySelectorAll('.rf-btn').forEach(b => {
+        b.classList.remove('bg-brand-600', 'text-white', 'font-bold');
+        b.classList.add('bg-slate-800', 'text-slate-300');
+      });
+      const activeBtn = document.getElementById(`rf-${filter}`);
+      if (activeBtn) {
+        activeBtn.classList.add('bg-brand-600', 'text-white', 'font-bold');
+        activeBtn.classList.remove('bg-slate-800', 'text-slate-300');
+      }
+      renderRadarCards(filter);
+    }
+
+    // 從雷達選擇品項
+    function selectRadarItem(id) {
+      const found = RADAR_PRODUCTS.find(x => x.id === id);
+      if (!found) return;
+
+      currentItem = JSON.parse(JSON.stringify(found));
+      document.getElementById('studioProdName').value = currentItem.name;
+      document.getElementById('studioPersona').value = currentItem.persona;
+      
+      // 同步財務
+      document.getElementById('finCny').value = currentItem.cny;
+      document.getElementById('finPrice').value = currentItem.price;
+
+      renderCurrentVideoPackage();
+      calcFinance();
+      switchTab('tab-video-studio');
+      showToast(`已成功載入【${currentItem.name}】至影音工作室！`);
+    }
+
+    // 快捷填入
+    function quickFillStudio(name, persona, pain) {
+      document.getElementById('studioProdName').value = name;
+      document.getElementById('studioPersona').value = persona;
+      document.getElementById('studioPainPoint').value = pain;
+      generateAiVideoPackage();
+    }
+
+    // 渲染當前生成的影片包
+    function renderCurrentVideoPackage() {
+      document.getElementById('hookContent').innerText = currentItem.hook;
+      document.getElementById('videoTitleContent').innerText = `${currentItem.name} 3分鐘沉浸體驗！輕鬆打造自律精緻感 ✨ #生活美學`;
+      document.getElementById('aiVideoPromptText').value = currentItem.prompt;
+
+      const container = document.getElementById('storyboardContainer');
+      container.innerHTML = '';
+
+      currentItem.storyboard.forEach((step, idx) => {
+        const stepCard = document.createElement('div');
+        stepCard.className = "bg-slate-950/80 border border-slate-800 rounded-xl p-3.5 space-y-2 relative overflow-hidden";
+        stepCard.innerHTML = `
+          <div class="flex justify-between items-center text-[10px] font-bold">
+            <span class="text-brand-400 bg-brand-950 px-2 py-0.5 rounded border border-brand-800/60">
+              分鏡 ${idx + 1} (${step.time})
+            </span>
+            <span class="text-slate-500">視覺 ＋ 口播同步</span>
+          </div>
+          <div>
+            <span class="text-[10px] text-slate-400 font-semibold block">👀 鏡頭畫面：</span>
+            <p class="text-xs text-slate-200">${step.visual}</p>
+          </div>
+          <div class="pt-1.5 border-t border-slate-800/80">
+            <span class="text-[10px] text-brand-300 font-semibold block">🎙️ 繁中口播旁白：</span>
+            <p class="text-xs text-slate-300 italic">"${step.audio}"</p>
+          </div>
+        `;
+        container.appendChild(stepCard);
+      });
+
+      // 同步到法規檢測框
+      document.getElementById('complianceInput').value = `${currentItem.hook}\n${currentItem.storyboard.map(s => s.audio).join(' ')}`;
+      runComplianceScan();
+    }
+
+    // 點擊生成按鈕 (模擬 AI 思考並輸出)
+    function generateAiVideoPackage() {
+      const btn = document.getElementById('btnGenerateAi');
+      const icon = document.getElementById('genIcon');
+      const text = document.getElementById('genText');
+      const prodName = document.getElementById('studioProdName').value;
+
+      icon.classList.add('animate-spin');
+      text.innerText = 'AI 正在拆解賣點與生成分鏡腳本...';
+      btn.disabled = true;
+
+      setTimeout(() => {
+        icon.classList.remove('animate-spin');
+        text.innerText = '一鍵生成帶貨分鏡與合規腳本';
+        btn.disabled = false;
+
+        currentItem.name = prodName;
+        currentItem.hook = `「你還在用老方法折騰自己？只要把這款【${prodName}】加入日常，精緻女孩的自律生活根本不用花大錢！」`;
+        currentItem.prompt = `Commercial product videography for ${prodName}, soft cinematic lighting, beautiful modern aesthetics, 4k 60fps, high dynamic range.`;
+        currentItem.storyboard[0].audio = `還在煩惱狀態不佳？試試這個被無數博主推爆的【${prodName}】！`;
+        
+        renderCurrentVideoPackage();
+        showToast('AI 帶貨短影音分鏡腳本已生成完畢！');
+      }, 600);
+    }
+
+    // 一鍵全流程跑通
+    function runAutoPipeline() {
+      selectRadarItem('p_jade');
+      showToast('已自動啟動「爆品探測 $\rightarrow$ 影音分鏡 $\rightarrow$ 利潤精算」完整管道！');
+    }
+
+    // 法規即時快篩
+    function runComplianceScan() {
+      const text = document.getElementById('complianceInput').value;
+      const badge = document.getElementById('complianceBadge');
+      const badgeBox = document.getElementById('complianceMatchedBadges');
+      const recBox = document.getElementById('complianceRewrittenBox');
+      const btnApply = document.getElementById('btnApplyCleanText');
+
+      badgeBox.innerHTML = '';
+
+      if (!text.trim()) {
+        badge.className = "text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-400";
+        badge.innerText = "尚未輸入文字";
+        recBox.innerHTML = '<p class="text-slate-500">請在上方輸入腳本以進行合規檢驗。</p>';
+        btnApply.classList.add('hidden');
+        return;
+      }
+
+      const matched = [];
+      ILLEGAL_RULES.forEach(rule => {
+        if (text.includes(rule.word)) matched.push(rule);
+      });
+
+      if (matched.length === 0) {
+        badge.className = "text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800";
+        badge.innerText = "✅ 100% 綠色合規 (無醫療受罰紅線)";
+        recBox.innerHTML = '<p class="text-emerald-400 font-semibold">恭喜！腳本與字幕完全符合台灣衛福部法規，無任何醫療療效宣稱，可直接安心推流。</p>';
+        btnApply.classList.add('hidden');
+      } else {
+        badge.className = "text-xs font-bold px-2.5 py-0.5 rounded-full bg-rose-950 text-rose-400 border border-rose-800";
+        badge.innerText = `🚨 偵測到 ${matched.length} 處潛在違法開罰用詞！`;
+        
+        let recHtml = '<div class="space-y-1">';
+        matched.forEach(m => {
+          const span = document.createElement('span');
+          span.className = "px-2 py-0.5 bg-rose-900/60 text-rose-300 border border-rose-700/60 text-[10px] font-bold rounded";
+          span.innerText = `⚠️ 違規詞：${m.word}`;
+          badgeBox.appendChild(span);
+
+          recHtml += `<p class="text-xs text-slate-300">• 建議將「<span class="text-rose-400 font-bold">${m.word}</span>」替換為合法詞：「<span class="text-emerald-400 font-bold">${m.replace}</span>」</p>`;
+        });
+        recHtml += '</div>';
+        recBox.innerHTML = recHtml;
+        btnApply.classList.remove('hidden');
+      }
+    }
+
+    // 自動洗白替換並套用
+    function applyComplianceCleanText() {
+      let text = document.getElementById('complianceInput').value;
+      ILLEGAL_RULES.forEach(rule => {
+        text = text.replaceAll(rule.word, rule.replace);
+      });
+      document.getElementById('complianceInput').value = text;
+      currentItem.hook = currentItem.hook.replace(/消水腫/g, '舒緩護理').replace(/瘦臉/g, '線條按摩');
+      renderCurrentVideoPackage();
+      runComplianceScan();
+      showToast('文案已自動完成法規洗白！');
+    }
+
+    // 財務精算
+    function calcFinance() {
+      const cny = parseFloat(document.getElementById('finCny').value) || 0;
+      const fx = parseFloat(document.getElementById('finFx').value) || 4.6;
+      const price = parseFloat(document.getElementById('finPrice').value) || 0;
+      const shipping = parseFloat(document.getElementById('finShipping').value) || 0;
+
+      const freeShip = document.getElementById('finFreeShip').checked;
+      const coins = document.getElementById('finCoins').checked;
+
+      const costTwd = cny * fx;
+      const totalCost = costTwd + shipping;
+
+      let rate = 8.0; // 基礎手續費 5.5% + 金流 2.5%
+      if (freeShip) rate += 6.0;
+      if (coins) rate += 3.0;
+      if (freeShip && coins) rate -= 0.5;
+
+      const invoiceFee = 2.5;
+      const platformFee = (price * (rate / 100)) + invoiceFee;
+      const netProfit = price - totalCost - platformFee;
+      const margin = price > 0 ? ((netProfit / price) * 100).toFixed(1) : 0;
+      const bep = (totalCost + invoiceFee) / (1 - (rate / 100));
+
+      document.getElementById('resTotalCost').innerText = 'NT$ ' + totalCost.toFixed(1);
+      document.getElementById('resTotalRate').innerText = rate.toFixed(1) + '%';
+      document.getElementById('resFeeTotal').innerText = 'NT$ ' + platformFee.toFixed(1);
+      document.getElementById('resNetProfit').innerText = 'NT$ ' + netProfit.toFixed(1);
+      document.getElementById('resMargin').innerText = margin + '%';
+      document.getElementById('resBep').innerText = 'NT$ ' + Math.ceil(bep);
+    }
+
+    // 複製全部分鏡
+    function copyFullScript() {
+      const fullText = `【帶貨短影音腳本：${currentItem.name}】\n\n[HOOK 誘餌]\n${currentItem.hook}\n\n[分鏡與口播]\n` + 
+        currentItem.storyboard.map((s, i) => `第${i+1}段 (${s.time})\n畫面：${s.visual}\n口播：${s.audio}`).join('\n\n');
+      
+      copyStringToClipboard(fullText);
+      showToast('15秒整套分鏡與口播腳本已複製到剪貼簿！');
+    }
+
+    function copyToClipboard(elementId, successMsg) {
+      const text = document.getElementById(elementId).innerText || document.getElementById(elementId).value;
+      copyStringToClipboard(text);
+      showToast(successMsg);
+    }
+
+    function copyStringToClipboard(str) {
+      const el = document.createElement('textarea');
+      el.value = str;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+    }
+
+    // 自訂 Toast 提示
+    function showToast(msg) {
+      const toast = document.getElementById('toastNotification');
+      const text = document.getElementById('toastMessage');
+      text.innerText = msg;
+      toast.classList.remove('translate-y-[-150%]', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-[-150%]', 'opacity-0');
+      }, 2500);
+    }
+
+    // 標籤切換器
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('text-brand-400', 'border-brand-500', 'font-bold');
+        btn.classList.add('text-slate-400', 'border-transparent');
+      });
+
+      document.getElementById(tabId).classList.remove('hidden');
+      const activeBtn = document.getElementById(`btn-${tabId}`);
+      if (activeBtn) {
+        activeBtn.classList.remove('text-slate-400', 'border-transparent');
+        activeBtn.classList.add('text-brand-400', 'border-brand-500', 'font-bold');
+      }
+    }
+  </script>
+</body>
+</html>
