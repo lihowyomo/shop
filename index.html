@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VeloFlow 原型｜AI 電商爆款矩陣與帶貨影音工作室</title>
+  <title>Velo選品大腦｜跨境電商全維度爆款決策工作站</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
+      darkMode: 'class',
       theme: {
         extend: {
           colors: {
@@ -18,31 +19,39 @@
               700: '#6d28d9',
               900: '#4c1d95',
             },
-            shopee: '#ee4d2d'
+            shopee: '#ee4d2d',
+            emeraldCustom: '#10b981'
           }
         }
       }
     }
   </script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
     body { font-family: 'Plus Jakarta Sans', 'Noto Sans TC', system-ui, sans-serif; }
-    .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #7c3aed;
+      cursor: pointer;
+    }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #f1f5f9; }
-    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
-    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-brand-500 selection:text-white">
 
-  <!-- 通知 Toast 浮動視窗 (替代原生 alert) -->
-  <div id="toastNotification" class="fixed top-5 right-5 z-50 transform translate-y-[-150%] opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-2.5 bg-slate-900 border border-slate-700 text-white px-4 py-3 rounded-2xl shadow-2xl text-xs font-semibold">
+  <!-- 浮動通知 Toast 視窗 (避免使用原生 alert) -->
+  <div id="toastBox" class="fixed top-5 right-5 z-50 transform -translate-y-24 opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-2.5 bg-slate-900 border border-slate-700 text-white px-4 py-3 rounded-2xl shadow-2xl text-xs font-semibold">
     <span id="toastIcon" class="text-base">✨</span>
-    <span id="toastMessage">操作成功</span>
+    <span id="toastMsg">操作成功</span>
   </div>
 
-  <!-- 頂部商業 SaaS 導航欄 -->
+  <!-- 頂部工作站導航列 -->
   <header class="bg-slate-900/90 border-b border-slate-800 sticky top-0 z-40 backdrop-blur-md">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap justify-between items-center gap-3">
       <div class="flex items-center space-x-3">
@@ -51,355 +60,534 @@
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <h1 class="text-base sm:text-lg font-black tracking-tight text-white flex items-center gap-1.5">
-              VeloFlow 概念架構
+            <h1 class="text-base sm:text-lg font-black tracking-tight text-white flex items-center gap-2">
+              Velo選品大腦
               <span class="text-[10px] bg-brand-500/20 text-brand-300 border border-brand-500/30 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
-                AI 電商鐵軍版
+                專業選品版
               </span>
             </h1>
           </div>
-          <p class="text-xs text-slate-400">選品情報探測 ． 帶貨短影音分鏡 ． 台灣合規洗白 ． 實時利潤精算</p>
+          <p class="text-xs text-slate-400">專注第一優先級：市場時序情報 ． 六維診斷評級 ． 1688跨境利潤精算 ． 候選品橫向PK</p>
         </div>
       </div>
 
-      <!-- 快捷操作與商業模式入口 -->
+      <!-- 快捷動作按鈕 -->
       <div class="flex items-center gap-2">
-        <button onclick="switchTab('tab-architecture')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold py-2 px-3 rounded-xl transition flex items-center gap-1.5">
-          <span>🛠️</span>
-          <span>App 開發架構藍圖</span>
+        <button onclick="switchTab('tab-custom')" class="text-xs bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-95 text-white font-bold py-2 px-3.5 rounded-xl transition flex items-center gap-1.5 shadow-md shadow-emerald-600/20">
+          <span>➕</span>
+          <span>自訂選品沙盒</span>
         </button>
-        <button onclick="runAutoPipeline()" class="text-xs bg-gradient-to-r from-brand-600 to-shopee hover:opacity-95 text-white font-bold py-2 px-3.5 rounded-xl transition flex items-center gap-1.5 shadow-md shadow-brand-500/20">
-          <span class="animate-pulse">⚡</span>
-          <span>一鍵跑通選品到影音</span>
+        <button onclick="switchTab('tab-pk')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold py-2 px-3 rounded-xl transition flex items-center gap-1.5">
+          <span>⚖️</span>
+          <span>候選PK對比庫 (<span id="navPkCount" class="text-brand-400 font-bold">0</span>)</span>
         </button>
       </div>
     </div>
 
-    <!-- 模組標籤導航欄 -->
+    <!-- 模組功能導航標籤列 -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 flex space-x-1 sm:space-x-3 border-t border-slate-800/80 overflow-x-auto text-xs font-semibold">
-      <button onclick="switchTab('tab-video-studio')" id="btn-tab-video-studio" class="tab-btn py-3 px-3.5 border-b-2 font-bold text-brand-400 border-brand-500 flex items-center gap-1.5 whitespace-nowrap transition">
-        <span>🎬</span> AI 帶貨影音工作室
+      <button onclick="switchTab('tab-radar')" id="btn-tab-radar" class="tab-nav-btn py-3 px-3.5 border-b-2 font-bold text-brand-400 border-brand-500 flex items-center gap-1.5 whitespace-nowrap transition">
+        <span>🔥</span> 1. 市場情報與時序雷達
       </button>
-      <button onclick="switchTab('tab-radar')" id="btn-tab-radar" class="tab-btn py-3 px-3.5 border-b-2 text-slate-400 border-transparent hover:text-slate-200 flex items-center gap-1.5 whitespace-nowrap transition">
-        <span>🔥</span> 爆品探測雷達與決策矩陣
+      <button onclick="switchTab('tab-vetting')" id="btn-tab-vetting" class="tab-nav-btn py-3 px-3.5 border-b-2 text-slate-400 border-transparent hover:text-slate-200 flex items-center gap-1.5 whitespace-nowrap transition">
+        <span>🎯</span> 2. 單品六維決策體檢
       </button>
-      <button onclick="switchTab('tab-compliance')" id="btn-tab-compliance" class="tab-btn py-3 px-3.5 border-b-2 text-slate-400 border-transparent hover:text-slate-200 flex items-center gap-1.5 whitespace-nowrap transition">
-        <span>🛡️</span> 台灣法規洗白雷達
+      <button onclick="switchTab('tab-calculator')" id="btn-tab-calculator" class="tab-nav-btn py-3 px-3.5 border-b-2 text-slate-400 border-transparent hover:text-slate-200 flex items-center gap-1.5 whitespace-nowrap transition">
+        <span>💰</span> 3. 1688跨境利潤精算沙盒
       </button>
-      <button onclick="switchTab('tab-finance')" id="btn-tab-finance" class="tab-btn py-3 px-3.5 border-b-2 text-slate-400 border-transparent hover:text-slate-200 flex items-center gap-1.5 whitespace-nowrap transition">
-        <span>💰</span> 蝦皮抽成利潤模型
+      <button onclick="switchTab('tab-custom')" id="btn-tab-custom" class="tab-nav-btn py-3 px-3.5 border-b-2 text-slate-400 border-transparent hover:text-slate-200 flex items-center gap-1.5 whitespace-nowrap transition">
+        <span>🧪</span> 4. 自訂選品診斷沙盒
       </button>
-      <button onclick="switchTab('tab-architecture')" id="btn-tab-architecture" class="tab-btn py-3 px-3.5 border-b-2 text-slate-400 border-transparent hover:text-slate-200 flex items-center gap-1.5 whitespace-nowrap transition">
-        <span>🚀</span> 如何做成真實 App？
+      <button onclick="switchTab('tab-pk')" id="btn-tab-pk" class="tab-nav-btn py-3 px-3.5 border-b-2 text-slate-400 border-transparent hover:text-slate-200 flex items-center gap-1.5 whitespace-nowrap transition">
+        <span>📋</span> 5. 候選商品橫向PK庫
+      </button>
+      <button onclick="switchTab('tab-bundles')" id="btn-tab-bundles" class="tab-nav-btn py-3 px-3.5 border-b-2 text-slate-400 border-transparent hover:text-slate-200 flex items-center gap-1.5 whitespace-nowrap transition">
+        <span>🔗</span> 6. A+B 搭售與客單價設計
       </button>
     </div>
   </header>
 
-  <!-- 主內容工作區 -->
   <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex-1 w-full space-y-6">
 
-    <!-- ================= TAB 1: AI 帶貨影音工作室 (核心生成模組) ================= -->
-    <div id="tab-video-studio" class="tab-content space-y-6">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
-        <!-- 左側：輸入與控制台 (4 Cols) -->
-        <div class="lg:col-span-4 bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-5 shadow-xl">
-          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-            <div>
-              <h2 class="text-sm font-bold text-white flex items-center gap-1.5">
-                <span>🤖</span> AI 爆款短影音生成器
-              </h2>
-              <p class="text-[11px] text-slate-400">專為蝦皮短片 / TikTok 演算法調優</p>
-            </div>
-            <span class="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800/80 px-2 py-0.5 rounded-full font-bold">
-              Prompt V3.2
-            </span>
-          </div>
-
-          <!-- 商品名稱輸入 -->
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1.5">目標帶貨商品</label>
-            <input type="text" id="studioProdName" value="天然粉晶雙頭滾輪＋刮痧板組" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-brand-500">
-          </div>
-
-          <!-- 核心受眾與痛點 -->
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs font-semibold text-slate-300 mb-1.5">目標客群 (Persona)</label>
-              <select id="studioPersona" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500">
-                <option value="office_girl">25-35 歲都會精緻女孩</option>
-                <option value="fitness_beginner">居家輕運動自律族</option>
-                <option value="busy_mom">忙碌育兒/舒壓媽咪</option>
-                <option value="college_student">大學宿舍小資女</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-300 mb-1.5">主打黃金痛點</label>
-              <select id="studioPainPoint" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500">
-                <option value="morning_puff">早晨起床浮腫沒精神</option>
-                <option value="neck_tired">久坐滑手機肩頸僵硬</option>
-                <option value="bedtime_stress">睡前焦慮難以放鬆</option>
-                <option value="skincare_waste">高價保養品吸收不佳</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- 短影音風格節奏 -->
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1.5">影片風格與調性</label>
-            <div class="grid grid-cols-2 gap-2">
-              <label class="flex items-center gap-2 p-2.5 bg-slate-800/80 rounded-xl border border-slate-700/80 cursor-pointer hover:border-brand-500 transition">
-                <input type="radio" name="videoStyle" value="asmr_spa" checked class="text-brand-500 focus:ring-brand-500">
-                <span class="text-xs text-slate-200 font-medium">沉浸式 ASMR 儀式感</span>
-              </label>
-              <label class="flex items-center gap-2 p-2.5 bg-slate-800/80 rounded-xl border border-slate-700/80 cursor-pointer hover:border-brand-500 transition">
-                <input type="radio" name="videoStyle" value="punchy_hook" class="text-brand-500 focus:ring-brand-500">
-                <span class="text-xs text-slate-200 font-medium">前3秒強衝擊反差</span>
-              </label>
-            </div>
-          </div>
-
-          <!-- 生成按鈕 -->
-          <button onclick="generateAiVideoPackage()" id="btnGenerateAi" class="w-full py-2.5 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-brand-500/30">
-            <span id="genIcon">✨</span>
-            <span id="genText">一鍵生成帶貨分鏡與合規腳本</span>
-          </button>
-
-          <!-- 快速切換預設案例 -->
-          <div class="pt-2 border-t border-slate-800 text-[11px] text-slate-400 flex items-center justify-between">
-            <span>填入推薦品項：</span>
-            <div class="flex gap-1.5">
-              <button onclick="quickFillStudio('天然粉晶雙頭滾輪組', 'office_girl', 'morning_puff')" class="hover:text-brand-300 underline">粉晶滾輪</button>
-              <span>•</span>
-              <button onclick="quickFillStudio('高頻負重無繩跳繩', 'fitness_beginner', 'neck_tired')" class="hover:text-brand-300 underline">無繩跳繩</button>
-              <span>•</span>
-              <button onclick="quickFillStudio('矽膠頭皮深層洗頭梳', 'office_girl', 'bedtime_stress')" class="hover:text-brand-300 underline">洗頭梳</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 右側：生成的腳本、分鏡卡與 AI 影片 Prompt (8 Cols) -->
-        <div class="lg:col-span-8 space-y-5">
-          
-          <!-- 成果頂部：前3秒爆款 Hook 與帶貨標題 -->
-          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
-              <div class="flex items-center gap-2">
-                <span class="text-xs bg-rose-500/20 text-rose-400 border border-rose-500/30 px-2 py-0.5 rounded-md font-bold">
-                  💥 3秒致死率 HOOK
-                </span>
-                <span class="text-xs text-slate-400">買家滑動停留率核心</span>
-              </div>
-              <button onclick="copyToClipboard('hookContent', 'Hook 文案已複製')" class="text-[11px] text-brand-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded-lg border border-slate-700 transition">
-                複製 Hook
-              </button>
-            </div>
-            
-            <p id="hookContent" class="text-sm sm:text-base font-bold text-white bg-slate-950/70 p-3.5 rounded-xl border border-slate-800 text-rose-100">
-              「早起臉沉得像沒睡醒？別再盲目喝黑咖啡了！這個冰冰涼涼的小動作，懂精緻保養的女孩都在偷偷做！」
-            </p>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-              <div class="bg-slate-950/40 p-3 rounded-xl border border-slate-800/80">
-                <span class="text-slate-400 block text-[10px] mb-1">蝦皮短片 / TikTok 爆款標題</span>
-                <p id="videoTitleContent" class="font-bold text-slate-200">
-                  早晨3分鐘喚醒神仙顏值！天然冰感撫平早起沉重感 ✨ #生活美學 #自我寵愛
-                </p>
-              </div>
-              <div class="bg-slate-950/40 p-3 rounded-xl border border-slate-800/80">
-                <span class="text-slate-400 block text-[10px] mb-1">合規性檢測結果</span>
-                <p id="videoComplianceTag" class="font-bold text-emerald-400 flex items-center gap-1">
-                  <span>✅</span> 100% 零違法醫療詞彙，可直接上傳廣告
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <!-- 4段式帶貨分鏡表 (Storyboard) -->
-          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                <span>🎞️</span> 15秒黃金帶貨分鏡腳本 (Storyboard Pipeline)
-              </h3>
-              <button onclick="copyFullScript()" class="text-[11px] text-brand-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded-lg border border-slate-700 transition">
-                一鍵複製整篇腳本
-              </button>
-            </div>
-
-            <!-- 分鏡卡片網格 -->
-            <div id="storyboardContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-              <!-- JS 動態生成分鏡 -->
-            </div>
-          </div>
-
-          <!-- 給 AI 影片模型 (Sora / Kling / Runway) 的純英文提示詞 Prompt -->
-          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-3">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-              <span class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-                <span>🤖</span> AI 影片生成模型 Prompt (可直接丟 Runway / 可靈 Kling)
-              </span>
-              <button onclick="copyToClipboard('aiVideoPromptText', 'AI 影片 Prompt 已複製')" class="text-[11px] text-brand-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded-lg border border-slate-700 transition">
-                複製英文 Prompt
-              </button>
-            </div>
-            <textarea id="aiVideoPromptText" rows="3" readonly class="w-full bg-slate-950 text-slate-300 text-[11px] p-3 rounded-xl border border-slate-800 font-mono focus:outline-none select-all"></textarea>
-          </div>
-
-        </div>
-      </div>
-    </div>
-
-    <!-- ================= TAB 2: 爆品探測雷達 (市場數據源) ================= -->
-    <div id="tab-radar" class="tab-content hidden space-y-6">
-      <!-- 頂部概況數據指標欄 -->
+    <!-- ================= 模組 1: 市場情報與時序雷達 ================= -->
+    <div id="tab-radar" class="tab-panel space-y-6">
+      
+      <!-- 頂部市場數據核心摘要 -->
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5 text-xs">
-        <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl">
-          <span class="text-slate-400 block text-[10px]">監測高動銷池</span>
-          <span class="text-lg font-black text-white" id="radarStatCount">8 款潛力爆品</span>
-          <span class="text-[10px] text-emerald-400 block font-medium">即時連線 1688 / 蝦皮榜單</span>
+        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-sm">
+          <span class="text-slate-400 block text-[11px] mb-1">監測高動銷池</span>
+          <span class="text-xl font-black text-white" id="radarTotalCount">8 款標竿品</span>
+          <span class="text-[10px] text-emerald-400 block font-medium mt-0.5">即時追蹤主流熱搜趨勢</span>
         </div>
-        <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl">
-          <span class="text-slate-400 block text-[10px]">平均預估淨利率</span>
-          <span class="text-lg font-black text-emerald-400" id="radarStatAvgMargin">58.4%</span>
-          <span class="text-[10px] text-slate-500 block">已扣除 16.5% 平台費</span>
+        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-sm">
+          <span class="text-slate-400 block text-[11px] mb-1">平均淨利率水平</span>
+          <span class="text-xl font-black text-emerald-400" id="radarAvgMargin">57.6%</span>
+          <span class="text-[10px] text-slate-500 block mt-0.5">已扣除 16.5% 平台費與運損</span>
         </div>
-        <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl">
-          <span class="text-slate-400 block text-[10px]">高藍海指數品項</span>
-          <span class="text-lg font-black text-indigo-400">85% 比例</span>
-          <span class="text-[10px] text-indigo-300/80 block">避開低價惡意比價</span>
+        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-sm">
+          <span class="text-slate-400 block text-[11px] mb-1">高藍海指數佔比</span>
+          <span class="text-xl font-black text-indigo-400">87.5%</span>
+          <span class="text-[10px] text-indigo-300/80 block mt-0.5">避開低價惡意比價泥淖</span>
         </div>
-        <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl">
-          <span class="text-slate-400 block text-[10px]">法規免檢安全率</span>
-          <span class="text-lg font-black text-rose-400">100% 綠色</span>
-          <span class="text-[10px] text-slate-400 block">零醫療器材/化妝品特許</span>
+        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-sm">
+          <span class="text-slate-400 block text-[11px] mb-1">台灣法規安全率</span>
+          <span class="text-xl font-black text-rose-400">100% 綠色</span>
+          <span class="text-[10px] text-slate-400 block mt-0.5">零特許、無電器NCC/BSMI</span>
         </div>
       </div>
 
-      <!-- 控制面板：時序、類別、排序與自訂品項探測 -->
+      <!-- 控制列：時序榜單、品類過濾、排序與搜尋 -->
       <div class="bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-800 space-y-4 shadow-xl">
         <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3.5">
-          <!-- 時序切換器 (24h / 7d / 30d) -->
+          <!-- 3段時序選擇器 (24h / 7d / 30d) -->
           <div class="flex items-center space-x-1.5 bg-slate-950 p-1.5 rounded-xl text-xs font-semibold border border-slate-800/80 w-full sm:w-auto overflow-x-auto">
-            <button onclick="setRadarTimeframe('24h')" id="rtf-24h" class="rtf-btn px-3 py-1.5 rounded-lg bg-brand-600 text-white font-bold transition whitespace-nowrap">
+            <button onclick="setTimeframe('24h')" id="tf-24h" class="tf-btn px-3.5 py-1.5 rounded-lg bg-brand-600 text-white font-bold transition whitespace-nowrap shadow-sm">
               ⚡ 24H 短影音突發榜
             </button>
-            <button onclick="setRadarTimeframe('7d')" id="rtf-7d" class="rtf-btn px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 transition whitespace-nowrap">
+            <button onclick="setTimeframe('7d')" id="tf-7d" class="tf-btn px-3.5 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 transition whitespace-nowrap">
               📈 7天 飆升成長榜
             </button>
-            <button onclick="setRadarTimeframe('30d')" id="rtf-30d" class="rtf-btn px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 transition whitespace-nowrap">
+            <button onclick="setTimeframe('30d')" id="tf-30d" class="tf-btn px-3.5 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 transition whitespace-nowrap">
               🏆 30天 長銷壓艙榜
             </button>
           </div>
 
-          <!-- 動作按鈕：開啟自訂選品沙盒 -->
-          <button onclick="toggleCustomProductModal()" class="text-xs bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-90 text-white font-bold py-2 px-3.5 rounded-xl transition flex items-center gap-1.5 shadow-md shadow-emerald-600/20 whitespace-nowrap">
-            <span>➕</span>
-            <span>自訂選品深度診斷沙盒</span>
-          </button>
+          <!-- 說明小標籤 -->
+          <div class="text-[11px] text-slate-400 flex items-center gap-2">
+            <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>時序維度鎖定：<b id="tfDescription" class="text-slate-200 font-semibold">短影音單日高動銷突發品</b></span>
+          </div>
         </div>
 
-        <!-- 類別過濾、排序與搜尋列 -->
+        <!-- 品類篩選、排序與關鍵字搜尋 -->
         <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-800 text-xs">
           <div class="flex flex-wrap items-center gap-2">
-            <span class="text-slate-400 font-semibold text-[11px]">品類：</span>
-            <button onclick="setRadarFilter('all')" id="rf-all" class="rf-btn px-2.5 py-1 rounded-lg bg-brand-600/30 text-brand-300 border border-brand-500/50 font-bold transition">全部品類</button>
-            <button onclick="setRadarFilter('care')" id="rf-care" class="rf-btn px-2.5 py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700/60 hover:text-white transition">居家SPA保養</button>
-            <button onclick="setRadarFilter('sport')" id="rf-sport" class="rf-btn px-2.5 py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700/60 hover:text-white transition">輕量居家體態</button>
-            <button onclick="setRadarFilter('living')" id="rf-living" class="rf-btn px-2.5 py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700/60 hover:text-white transition">沉浸日用儀式</button>
+            <span class="text-slate-400 font-semibold text-[11px]">品類聚焦：</span>
+            <button onclick="setCategoryFilter('all')" id="cat-all" class="cat-btn px-2.5 py-1 rounded-lg bg-brand-600/30 text-brand-300 border border-brand-500/50 font-bold transition">全部品項</button>
+            <button onclick="setCategoryFilter('care')" id="cat-care" class="cat-btn px-2.5 py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700/60 hover:text-white transition">居家SPA與微雕</button>
+            <button onclick="setCategoryFilter('sport')" id="cat-sport" class="cat-btn px-2.5 py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700/60 hover:text-white transition">輕量居家體態</button>
+            <button onclick="setCategoryFilter('living')" id="cat-living" class="cat-btn px-2.5 py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700/60 hover:text-white transition">沉浸日用儀式</button>
           </div>
 
-          <div class="flex items-center gap-2 w-full sm:w-auto">
-            <select id="radarSortOrder" onchange="renderRadarCards()" class="bg-slate-950 border border-slate-800 text-slate-300 rounded-xl px-2.5 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500">
+          <div class="flex items-center gap-2.5 w-full sm:w-auto">
+            <select id="radarSortSelect" onchange="renderRadarProducts()" class="bg-slate-950 border border-slate-800 text-slate-300 rounded-xl px-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500 font-medium">
               <option value="growth">依動銷增長率排序</option>
               <option value="margin">依預估淨利率排序</option>
-              <option value="ocean">依藍海競爭指數排序</option>
+              <option value="ocean">依藍海指數排序</option>
               <option value="price_asc">建議售價 (低到高)</option>
               <option value="price_desc">建議售價 (高到低)</option>
             </select>
-            <input type="text" id="radarSearchInput" oninput="renderRadarCards()" placeholder="搜尋品名、痛點..." class="bg-slate-950 border border-slate-800 text-slate-200 rounded-xl px-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500 w-full sm:w-44">
+            <input type="text" id="radarSearchBox" oninput="renderRadarProducts()" placeholder="搜尋品名、賣點..." class="bg-slate-950 border border-slate-800 text-slate-200 rounded-xl px-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500 w-full sm:w-44">
           </div>
         </div>
       </div>
 
-      <!-- 自訂選品診斷沙盒 (預設折疊，點擊展開) -->
-      <div id="customProductBox" class="hidden bg-slate-900 border border-emerald-500/40 rounded-2xl p-5 space-y-4 shadow-2xl transition-all">
-        <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+      <!-- 商品卡片瀑布流網格 -->
+      <div id="radarCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <!-- JS 動態生成選品情報卡片 -->
+      </div>
+    </div>
+
+    <!-- ================= 模組 2: 單品六維決策體檢 ================= -->
+    <div id="tab-vetting" class="tab-panel hidden space-y-6">
+      <!-- 頂部當前選品看板 -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- 綜合評級與得分卡片 -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col justify-between relative overflow-hidden">
+          <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-brand-600/10 rounded-full blur-3xl pointer-events-none"></div>
           <div>
-            <h3 class="text-sm font-bold text-white flex items-center gap-1.5">
-              <span class="text-emerald-400">🧪</span> 自訂選品全維度決策診斷沙盒
-            </h3>
-            <p class="text-[11px] text-slate-400">輸入你在 1688 或供應商看到的任何新商品，立即測算淨利、短影音潛力與法規安全指數</p>
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Vetting Matrix Grade</span>
+              <span id="vGradeBadge" class="px-3 py-1 text-xs font-black rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800">
+                S 級爆款主力
+              </span>
+            </div>
+            <div class="mt-4 flex items-baseline gap-2">
+              <span id="vTotalScore" class="text-5xl font-black text-white">88.5</span>
+              <span class="text-slate-400 font-semibold text-xs">/ 100 綜合成績</span>
+            </div>
+            <h3 id="vGradeTitle" class="mt-2 text-sm font-bold text-slate-200">超高毛利・高受眾黏著度・自帶短影音話題</h3>
+            <p id="vGradeSummary" class="text-xs text-slate-400 mt-1 leading-relaxed">
+              契合都會女性減壓與體態維護剛需，落地成本控制優異，能扛起店鋪主力營收。
+            </p>
           </div>
-          <button onclick="toggleCustomProductModal()" class="text-slate-400 hover:text-white text-xs">✕ 關閉</button>
+
+          <div class="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
+            <span class="text-xs text-slate-400">目前體檢品項：</span>
+            <span id="vItemName" class="text-xs font-bold text-brand-300 truncate max-w-[190px]">天然粉晶雙頭滾輪組</span>
+          </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3.5 text-xs">
-          <div>
-            <label class="block text-slate-300 font-semibold mb-1">商品名稱</label>
-            <input type="text" id="cstName" value="冰感注水微雕滾輪儀" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        <!-- 財務指標快照 -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+          <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Financial Snapshot</span>
+            <span class="text-[10px] text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-800">已扣16.5%平台費</span>
           </div>
-          <div>
-            <label class="block text-slate-300 font-semibold mb-1">所屬品類場景</label>
-            <select id="cstCat" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-200">
-              <option value="care">居家SPA保養</option>
-              <option value="sport">輕量居家體態</option>
-              <option value="living">沉浸日用儀式</option>
-            </select>
+          <div class="grid grid-cols-2 gap-4 my-auto pt-3">
+            <div>
+              <p class="text-xs text-slate-400">建議終端售價</p>
+              <p id="vPrice" class="text-2xl font-black text-brand-400">NT$ 269</p>
+            </div>
+            <div>
+              <p class="text-xs text-slate-400">落地採購總成本</p>
+              <p id="vCost" class="text-2xl font-black text-slate-200">NT$ 52</p>
+            </div>
+            <div>
+              <p class="text-xs text-slate-400">單單預估純淨利</p>
+              <p id="vNetProfit" class="text-2xl font-black text-emerald-400">NT$ 170</p>
+            </div>
+            <div>
+              <p class="text-xs text-slate-400">預估純淨利率</p>
+              <p id="vMargin" class="text-2xl font-black text-emerald-400">63.2%</p>
+            </div>
           </div>
-          <div>
-            <label class="block text-slate-300 font-semibold mb-1">1688 採購價 (RMB ¥)</label>
-            <input type="number" id="cstCny" value="6.5" step="0.1" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold">
-          </div>
-          <div>
-            <label class="block text-slate-300 font-semibold mb-1">蝦皮預計售價 (NT$)</label>
-            <input type="number" id="cstPrice" value="239" class="w-full bg-slate-950 border border-emerald-500/50 rounded-xl px-3 py-2 text-emerald-400 font-bold">
+          <div class="pt-3 border-t border-slate-800 flex justify-between items-center text-xs">
+            <span class="text-slate-400">保本售價門檻 (BEP)</span>
+            <span id="vBep" class="text-sm font-bold text-slate-200">NT$ 66</span>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 text-xs">
-          <div>
-            <label class="block text-slate-400 mb-1">單件頭程空運+耗材 (NT$)</label>
-            <input type="number" id="cstShipping" value="12" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-200">
+        <!-- 操盤實戰行動方針 -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Tactical Action Plan</span>
+          <div class="space-y-2.5 my-auto pt-2 text-xs">
+            <div class="flex items-start gap-2">
+              <span class="p-1 rounded bg-brand-950 text-brand-300 font-bold text-[11px]">🛒</span>
+              <p id="vActionRole" class="text-slate-300 leading-snug font-medium">場景角色：晨間喚醒消沉，高單價利潤主力收割款。</p>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="p-1 rounded bg-indigo-950 text-indigo-300 font-bold text-[11px]">📦</span>
+              <p id="vActionBundle" class="text-slate-300 leading-snug">搭售策略：搭配洗頭梳或髮帶做滿額湊單，將客單價拉至 $399 以上。</p>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="p-1 rounded bg-rose-950 text-rose-300 font-bold text-[11px]">⚠️</span>
+              <p id="vActionRisk" class="text-slate-300 leading-snug">法規紅線：強調「冰感護理放鬆」，切勿宣稱「提拉消水腫/排毒」。</p>
+            </div>
           </div>
-          <div>
-            <label class="block text-slate-400 mb-1">主打前3秒爆款 Hook</label>
-            <input type="text" id="cstHook" value="「早上起床照鏡子超想哭？注水冰凍3分鐘，這才是精緻女孩的晨間作弊神器！」" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-200">
-          </div>
-          <div class="flex items-end">
-            <button onclick="submitCustomProductToRadar()" class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/30">
-              <span>🚀</span>
-              <span>測算完畢並收錄至選品庫</span>
+          <div class="mt-4 pt-3 border-t border-slate-800 flex gap-2">
+            <button onclick="addCurrentItemToPk()" class="w-full py-2 bg-gradient-to-r from-brand-600 to-indigo-600 hover:opacity-90 text-white rounded-xl text-xs font-bold transition shadow-md">
+              ➕ 存入候選 PK 對比庫
             </button>
           </div>
         </div>
+
       </div>
 
-      <!-- 雷達卡片網格 (瀑布流) -->
-      <div id="radarCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        <!-- JS 動態生成 -->
-      </div>
+      <!-- 六大選品維度量化打分調整器 -->
+      <div class="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl space-y-4">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-800 pb-3">
+          <div>
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <span>🎯</span> 六角選品維度健康度量化打分表
+            </h3>
+            <p class="text-xs text-slate-400 mt-0.5">拖動滑桿微調權重分數，系統將即時導出全新綜合成績與評級建議。</p>
+          </div>
+          <button onclick="resetVettingSliders()" class="text-xs text-brand-400 hover:text-brand-300 font-semibold underline">
+            重設為當前商品原始預設值
+          </button>
+        </div>
 
-      <!-- 候選商品橫向 PK 對比庫 -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-xl">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 text-xs">
+          <!-- 1. 財務與毛利 -->
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-slate-200">💰 1. 財務毛利空間 (權重 25%)</span>
+              <span id="valDimProfit" class="font-black text-brand-400 bg-brand-950 px-2 py-0.5 rounded">92分</span>
+            </div>
+            <input type="range" id="sliderProfit" min="20" max="100" value="92" oninput="recalcVettingScores()" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+            <p class="text-[10px] text-slate-400">毛利高於 55%，能抵禦促銷降價與廣告投放成本</p>
+          </div>
+
+          <!-- 2. 物流輕量度 -->
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-slate-200">📦 2. 物流履約輕便度 (權重 20%)</span>
+              <span id="valDimLogistics" class="font-black text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded">90分</span>
+            </div>
+            <input type="range" id="sliderLogistics" min="20" max="100" value="90" oninput="recalcVettingScores()" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+            <p class="text-[10px] text-slate-400">體積輕便不佔超材，空運成本低且不易碰撞損耗</p>
+          </div>
+
+          <!-- 3. 短影音吸睛力 -->
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-slate-200">✨ 3. 視覺吸睛短影音力 (權重 20%)</span>
+              <span id="valDimVisual" class="font-black text-indigo-400 bg-indigo-950 px-2 py-0.5 rounded">95分</span>
+            </div>
+            <input type="range" id="sliderVisual" min="20" max="100" value="95" oninput="recalcVettingScores()" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+            <p class="text-[10px] text-slate-400">自帶天然光澤或動態展示，3秒內抓住觀眾眼球</p>
+          </div>
+
+          <!-- 4. 法規安全度 -->
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-slate-200">🛡️ 4. 台灣法規合規度 (權重 15%)</span>
+              <span id="valDimLegal" class="font-black text-rose-400 bg-rose-950 px-2 py-0.5 rounded">88分</span>
+            </div>
+            <input type="range" id="sliderLegal" min="20" max="100" value="88" oninput="recalcVettingScores()" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+            <p class="text-[10px] text-slate-400">非特許電器、非藥妝油劑，文案洗白後 100% 零罰款風險</p>
+          </div>
+
+          <!-- 5. 搭售連帶率 -->
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-slate-200">🔗 5. A+B 生態連帶率 (權重 10%)</span>
+              <span id="valDimAttach" class="font-black text-teal-400 bg-teal-950 px-2 py-0.5 rounded">90分</span>
+            </div>
+            <input type="range" id="sliderAttach" min="20" max="100" value="90" oninput="recalcVettingScores()" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+            <p class="text-[10px] text-slate-400">極易與跳繩、洗頭梳或乾髮帽打包促成多件折抵</p>
+          </div>
+
+          <!-- 6. 生命週期 -->
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-slate-200">⏳ 6. 常青抗卷與週期 (權重 10%)</span>
+              <span id="valDimCycle" class="font-black text-blue-400 bg-blue-950 px-2 py-0.5 rounded">85分</span>
+            </div>
+            <input type="range" id="sliderCycle" min="20" max="100" value="85" oninput="recalcVettingScores()" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+            <p class="text-[10px] text-slate-400">一年四季皆有剛需，非 1-2 個月即死的短命快閃品</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= 模組 3: 1688跨境利潤精算沙盒 ================= -->
+    <div id="tab-calculator" class="tab-panel hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- 左側：輸入表單與模式切換 (2 Cols) -->
+        <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-5 shadow-xl">
+          <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+            <div>
+              <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span>💰</span> 跨境採購底價、履約平攤與定價精算
+              </h3>
+              <p class="text-xs text-slate-400">精準還原 1688 原廠批發底價至台灣終端買家結帳的每一筆費用</p>
+            </div>
+            <span class="text-[10px] bg-brand-950 text-brand-300 border border-brand-800 px-2 py-0.5 rounded-full font-bold">
+              2026 蝦皮費率模型
+            </span>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">精算商品名稱</label>
+            <input type="text" id="calcProdName" value="天然粉晶雙頭滾輪＋刮痧板組" oninput="runFinancialCalculation()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+          </div>
+
+          <!-- 價格與匯率 -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 text-xs">
+            <div>
+              <label class="block text-slate-400 font-semibold mb-1">1688 批發進價 (RMB ¥)</label>
+              <div class="relative">
+                <span class="absolute left-3 top-2 text-slate-500">¥</span>
+                <input type="number" id="calcCny" value="7.8" step="0.1" oninput="runFinancialCalculation()" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-7 pr-3 py-2 text-white font-bold">
+              </div>
+            </div>
+            <div>
+              <label class="block text-slate-400 font-semibold mb-1">匯率 (RMB $\rightarrow$ TWD)</label>
+              <input type="number" id="calcFx" value="4.6" step="0.05" oninput="runFinancialCalculation()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200">
+            </div>
+            <div>
+              <label class="block text-brand-300 font-semibold mb-1">預計終端促銷售價 (NT$)</label>
+              <div class="relative">
+                <span class="absolute left-3 top-2 text-slate-500">$</span>
+                <input type="number" id="calcPrice" value="269" oninput="runFinancialCalculation()" class="w-full bg-slate-950 border border-brand-500/50 rounded-xl pl-7 pr-3 py-2 text-brand-300 font-black">
+              </div>
+            </div>
+          </div>
+
+          <!-- 履約物流平攤 -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 text-xs">
+            <div>
+              <label class="block text-slate-400 font-semibold mb-1">單件頭程空運/海快平攤 (NT$)</label>
+              <input type="number" id="calcShipping" value="12" oninput="runFinancialCalculation()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200">
+            </div>
+            <div>
+              <label class="block text-slate-400 font-semibold mb-1">包裝防震氣泡袋與耗材 (NT$)</label>
+              <input type="number" id="calcPacking" value="4" oninput="runFinancialCalculation()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200">
+            </div>
+            <div>
+              <label class="block text-slate-400 font-semibold mb-1">退換貨耗損攤提金 (NT$)</label>
+              <input type="number" id="calcDefect" value="2" oninput="runFinancialCalculation()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200">
+            </div>
+          </div>
+
+          <!-- 2026 蝦皮平台抽成模式配置 -->
+          <div class="pt-3 border-t border-slate-800 space-y-2.5">
+            <span class="text-xs font-bold text-slate-300 block">蝦皮官方活動與金流抽成配置：</span>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+              <label class="flex items-center gap-2 p-3 bg-slate-950 rounded-xl border border-slate-800 cursor-pointer hover:border-brand-500 transition">
+                <input type="checkbox" id="calcChkFreeShip" checked onchange="runFinancialCalculation()" class="text-brand-500 rounded focus:ring-brand-500">
+                <div>
+                  <span class="text-white font-bold block">全店免運補貼</span>
+                  <span class="text-slate-500 text-[10px]">+6.0% 活動服務費</span>
+                </div>
+              </label>
+
+              <label class="flex items-center gap-2 p-3 bg-slate-950 rounded-xl border border-slate-800 cursor-pointer hover:border-brand-500 transition">
+                <input type="checkbox" id="calcChkCoins" checked onchange="runFinancialCalculation()" class="text-brand-500 rounded focus:ring-brand-500">
+                <div>
+                  <span class="text-white font-bold block">10% 蝦幣回饋</span>
+                  <span class="text-slate-500 text-[10px]">+3.0% (雙開折0.5%)</span>
+                </div>
+              </label>
+
+              <label class="flex items-center gap-2 p-3 bg-slate-950 rounded-xl border border-slate-800 cursor-pointer hover:border-brand-500 transition">
+                <input type="checkbox" id="calcChkPromoDay" onchange="runFinancialCalculation()" class="text-brand-500 rounded focus:ring-brand-500">
+                <div>
+                  <span class="text-white font-bold block">大促日加成</span>
+                  <span class="text-slate-500 text-[10px]">+2.0% 手續費上浮</span>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右側：盈虧結構拆解與 BEP 瀑布流 (1 Col) -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+          <div>
+            <h3 class="text-sm font-bold text-white border-b border-slate-800 pb-2.5 mb-3">
+              單件盈虧瀑布流拆解
+            </h3>
+
+            <div class="space-y-2.5 text-xs text-slate-300">
+              <div class="flex justify-between py-1 border-b border-slate-800/60">
+                <span class="text-slate-400">1688 進價折合台幣</span>
+                <span id="resCostTwd" class="font-bold text-white">NT$ 35.9</span>
+              </div>
+              <div class="flex justify-between py-1 border-b border-slate-800/60">
+                <span class="text-slate-400">綜合落地成本 (含運包材損)</span>
+                <span id="resLandedTotal" class="font-bold text-slate-200">NT$ 53.9</span>
+              </div>
+              <div class="flex justify-between py-1 border-b border-slate-800/60">
+                <span class="text-slate-400">基礎手續 (成交5.5% + 金流2.5%)</span>
+                <span class="font-semibold text-slate-300">8.0%</span>
+              </div>
+              <div class="flex justify-between py-1 border-b border-slate-800/60">
+                <span class="text-slate-400">平台總抽繳比例 (含活動)</span>
+                <span id="resPlatformRate" class="font-bold text-rose-400">16.5%</span>
+              </div>
+              <div class="flex justify-between py-1 border-b border-slate-800/60">
+                <span class="text-slate-400">平台各項扣除 + 發票費 ($2.5)</span>
+                <span id="resPlatformFee" class="font-bold text-rose-400">NT$ 46.9</span>
+              </div>
+
+              <div class="my-3 border-t border-dashed border-slate-800"></div>
+
+              <div class="flex justify-between py-1 text-sm font-bold text-white">
+                <span>每單實收純淨利</span>
+                <span id="resNetProfit" class="text-base font-black text-emerald-400">NT$ 168.2</span>
+              </div>
+              <div class="flex justify-between py-1 text-xs font-semibold text-slate-400">
+                <span>預估純淨利率 (Margin)</span>
+                <span id="resMarginPct" class="font-bold text-emerald-400">62.5%</span>
+              </div>
+              <div class="flex justify-between py-1 text-xs font-semibold text-slate-400">
+                <span>投資報酬率 (ROI)</span>
+                <span id="resRoiPct" class="font-bold text-indigo-400">312.1%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 保本定價 -->
+          <div class="mt-6 pt-4 border-t border-slate-800 bg-slate-950 -mx-6 -mb-6 p-5 rounded-b-2xl">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">保本售價臨界點 (BEP Price)</span>
+            <div class="flex justify-between items-baseline">
+              <span id="resBepPrice" class="text-2xl font-black text-white">NT$ 68</span>
+              <span class="text-[11px] text-slate-500">低於此價將面臨倒貼虧損</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ================= 模組 4: 自訂選品診斷沙盒 ================= -->
+    <div id="tab-custom" class="tab-panel hidden space-y-6">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-5">
         <div class="flex justify-between items-center border-b border-slate-800 pb-3">
           <div>
             <h3 class="text-sm font-bold text-white flex items-center gap-2">
-              <span>📋</span> 候選商品橫向決策 PK 庫
-              <span id="compareCountBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-brand-950 text-brand-300 border border-brand-800">已加入 0 款</span>
+              <span class="text-emerald-400">🧪</span> 自訂選品全維度診斷沙盒
             </h3>
-            <p class="text-xs text-slate-400 mt-0.5">點擊卡片上的「加入 PK」即可將商品放入橫向比對矩陣，一眼挑出最高利潤主打款</p>
+            <p class="text-xs text-slate-400 mt-0.5">輸入你在 1688 或各供應鏈看到的任何新商品，立即測算淨利、短影音潛力與法規安全指數，並收錄至選品庫</p>
           </div>
-          <button onclick="clearCompareList()" class="text-xs text-slate-400 hover:text-rose-400 transition">清空比對清單</button>
+          <span class="text-xs text-slate-400">輸入即測算</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">候選商品名稱</label>
+            <input type="text" id="custName" value="冰感注水微雕滾輪儀 (食品級硅膠)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">所屬品類場景</label>
+            <select id="custCat" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+              <option value="care">🧖‍♀️ 居家SPA與微雕</option>
+              <option value="sport">🏃 輕量居家體態</option>
+              <option value="living">🛁 沉浸日用儀式</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">1688 批發進價 (RMB ¥)</label>
+            <input type="number" id="custCny" value="6.5" step="0.1" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-bold">
+          </div>
+          <div>
+            <label class="block text-emerald-400 font-semibold mb-1">蝦皮預計售價 (NT$)</label>
+            <input type="number" id="custPrice" value="239" class="w-full bg-slate-950 border border-emerald-500/50 rounded-xl px-3 py-2 text-emerald-400 font-bold">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+          <div>
+            <label class="block text-slate-400 mb-1">頭程運費與耗材預估 (NT$)</label>
+            <input type="number" id="custShipping" value="15" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200">
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1">藍海競爭預估指數 (0-100)</label>
+            <input type="number" id="custOcean" value="92" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200">
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1">主打前3秒爆款 Hook 文案</label>
+            <input type="text" id="custHook" value="「早上起床臉沉得像沒睡醒？注水冰凍3分鐘，這才是精緻女孩的晨間作弊神器！」" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200">
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-slate-800 flex justify-end">
+          <button onclick="submitCustomProduct()" class="py-2.5 px-6 bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-95 text-white font-bold rounded-xl transition flex items-center gap-2 shadow-lg shadow-emerald-600/30 text-xs">
+            <span>🚀</span>
+            <span>診斷完成並存入選品情報庫</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= 模組 5: 候選商品橫向PK庫 ================= -->
+    <div id="tab-pk" class="tab-panel hidden space-y-6">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+        <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+          <div>
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <span>⚖️</span> 候選商品橫向決策 PK 庫
+              <span id="pkTableCountBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-brand-950 text-brand-300 border border-brand-800">
+                已加入 0 款
+              </span>
+            </h3>
+            <p class="text-xs text-slate-400 mt-0.5">點擊各商品卡片上的「➕ 加入 PK」，在此一覽橫向比較淨利潤、落地成本與保本售價門檻</p>
+          </div>
+          <button onclick="clearPkList()" class="text-xs text-slate-400 hover:text-rose-400 transition">清空比對清單</button>
         </div>
 
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs text-slate-300">
             <thead class="bg-slate-950 text-slate-400 font-semibold border-b border-slate-800">
               <tr>
-                <th class="p-3">品項名稱</th>
+                <th class="p-3">候選商品名稱</th>
                 <th class="p-3">建議售價</th>
                 <th class="p-3">落地成本</th>
-                <th class="p-3">單件淨利</th>
+                <th class="p-3">每單淨利</th>
                 <th class="p-3">淨利率</th>
                 <th class="p-3">保本售價 (BEP)</th>
                 <th class="p-3">藍海指數</th>
@@ -407,12 +595,83 @@
                 <th class="p-3">操作</th>
               </tr>
             </thead>
-            <tbody id="compareTableBody" class="divide-y divide-slate-800/80">
-              <!-- JS 動態生成 -->
+            <tbody id="pkTableBody" class="divide-y divide-slate-800/80">
+              <!-- JS 動態生成 PK 列 -->
             </tbody>
           </table>
-          <div id="compareEmptyTip" class="py-8 text-center text-xs text-slate-500">
-            目前尚未加入任何品項。請點選上方商品卡片右下角的「➕ 加入 PK」進行橫向比對！
+          <div id="pkEmptyTip" class="py-12 text-center text-xs text-slate-500">
+            目前尚未加入任何商品進行比較。請至「1. 市場情報與時序雷達」點選商品卡片上的「➕ 加入 PK」！
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= 模組 6: A+B 搭售與客單價設計 ================= -->
+    <div id="tab-bundles" class="tab-panel hidden space-y-6">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+        <div class="border-b border-slate-800 pb-3">
+          <h3 class="text-sm font-bold text-white flex items-center gap-2">
+            <span>🔗</span> A+B 體態與美學生活生活時序搭售閉環架構
+          </h3>
+          <p class="text-xs text-slate-400 mt-0.5">破解 16.5% 平台抽成的核心在於「把客單價拉到 $350 以上」。以下是同客群（22-35歲自律女孩）的黃金搭售組合：</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 text-xs">
+          <!-- 組合 1: 晨間喚醒消沉包 -->
+          <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-950 text-rose-300 border border-rose-800">晨間喚醒組合</span>
+              <span class="text-emerald-400 font-bold">預估毛利 64%</span>
+            </div>
+            <h4 class="text-sm font-bold text-white">晨間雙重煥顏舒緩套裝</h4>
+            <ul class="text-slate-400 space-y-1 text-[11px]">
+              <li>• 主力款：天然粉晶滾輪組 ($269)</li>
+              <li>• 加價購：晨間木柄豬鬃乾刷 ($129 加購價)</li>
+              <li>• 湊單品：微醺撞色洗臉髮帶 ($39 加購價)</li>
+            </ul>
+            <div class="pt-2 border-t border-slate-800 flex justify-between items-baseline">
+              <span class="text-slate-400">套裝促銷售價：</span>
+              <span class="text-base font-black text-brand-400">NT$ 437</span>
+            </div>
+            <p class="text-[10px] text-slate-500">突破 $399 免運門檻，單筆訂單實賺超過 NT$ 260！</p>
+          </div>
+
+          <!-- 組合 2: 租屋無擾鄰爆汗包 -->
+          <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800">下班體態管理</span>
+              <span class="text-emerald-400 font-bold">預估毛利 59%</span>
+            </div>
+            <h4 class="text-sm font-bold text-white">租屋暴汗零噪音體態套組</h4>
+            <ul class="text-slate-400 space-y-1 text-[11px]">
+              <li>• 主力款：高頻負重無繩跳繩 ($349)</li>
+              <li>• 加價購：8mm TPE 隔音小圓墊 ($169 加購價)</li>
+              <li>• 加價購：筋膜舒緩花生球 ($79 加購價)</li>
+            </ul>
+            <div class="pt-2 border-t border-slate-800 flex justify-between items-baseline">
+              <span class="text-slate-400">套裝促銷售價：</span>
+              <span class="text-base font-black text-brand-400">NT$ 597</span>
+            </div>
+            <p class="text-[10px] text-slate-500">直攻全店滿 $599 現折券，連帶率高達 40% 以上！</p>
+          </div>
+
+          <!-- 組合 3: 沐浴頭皮 SPA 包 -->
+          <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-950 text-teal-300 border border-teal-800">沐浴放鬆組合</span>
+              <span class="text-emerald-400 font-bold">預估毛利 66%</span>
+            </div>
+            <h4 class="text-sm font-bold text-white">沙龍級深層沐浴釋壓套裝</h4>
+            <ul class="text-slate-400 space-y-1 text-[11px]">
+              <li>• 主力款：矽膠雙面拉背搓澡巾 ($89)</li>
+              <li>• 引流款：食品級矽膠洗頭梳 ($49)</li>
+              <li>• 剛需款：珊瑚絨秒吸水乾髮帽 ($69 加購價)</li>
+            </ul>
+            <div class="pt-2 border-t border-slate-800 flex justify-between items-baseline">
+              <span class="text-slate-400">套裝促銷售價：</span>
+              <span class="text-base font-black text-brand-400">NT$ 207</span>
+            </div>
+            <p class="text-[10px] text-slate-500">超輕量、零破損、零客訴，整店最穩定的回購神器！</p>
           </div>
         </div>
       </div>
@@ -420,243 +679,238 @@
 
   </main>
 
-  <!-- 核心資料與互動邏輯 -->
   <script>
-    // 升級擴充：涵蓋 24H/7D/30D 時序、多維決策指標與短影音腳本的完整選品庫
-    const RADAR_PRODUCTS = [
-      // 24H 突發爆款
+    // 專業選品數據庫 (涵蓋 24H 突發、7D 成長、30D 長銷)
+    const SELECTION_ITEMS = [
+      // 24H 短影音突發榜
       {
-        id: 'p_jade',
+        id: 'sel_jade',
         timeframe: '24h',
-        name: '天然粉晶雙頭滾輪＋刮痧板組',
+        name: '天然粉晶雙頭滾輪＋心形刮痧板組',
         cat: 'care',
         cny: 7.8,
         price: 269,
-        shipping: 16,
-        growth: '+210%',
-        salesVol: '1,280 件/日',
-        oceanIndex: 88, // 藍海競爭指數 (0-100)
-        visualScore: 95, // 短影音吸睛力 (0-100)
-        grade: 'S 級核心主力',
-        hook: '「早起臉沉得像沒睡醒？別再盲目喝黑咖啡了！這個冰冰涼涼的小動作，懂精緻保養的女孩都在偷偷做！」',
-        pain: '早晨起床浮腫沒精神',
-        persona: 'office_girl',
-        storyboard: [
-          { time: '0-3s', visual: '鬧鐘響起，特寫女孩剛醒微沉的眼周，鏡頭快速切換至放在冰塊旁的天然粉晶滾輪。', audio: '（清脆冰塊聲）早起臉沉沉的？別再死灌黑咖啡啦！' },
-          { time: '3-7s', visual: '粉晶滾輪順著下顎線條緩慢溫柔地向上滑動，溫潤天然光澤折射。', audio: '用這支冰鎮過的天然粉晶，由下往上推個三分鐘，觸感冰涼又舒服～' },
-          { time: '7-12s', visual: '拿起心形刮痧板在肩頸兩側輕柔滑撫，整個人露出放鬆愜意的微笑。', audio: '肩頸緊繃也能順手舒壓，像在家享受專屬 SPA 一樣放鬆！' },
-          { time: '12-15s', visual: '女孩自信對鏡子微笑，畫面定格精緻禮盒包裝與左下角購物車圖標。', audio: '今天官方開幕現折只要兩百多，趁優惠手刀帶走！' }
-        ],
-        prompt: 'Cinematic high-end commercial video, close up shot of a young beautiful Asian woman using a premium rose quartz roller on her glowing skin in a minimalist bedroom, natural warm morning sunlight, serene and calming vibe, 4k photorealistic.'
+        shipping: 12,
+        packing: 4,
+        defect: 2,
+        growth: '+240%',
+        oceanIndex: 88,
+        visualScore: 96,
+        grade: 'S 級主力款',
+        hook: '「早起臉沉得像沒睡醒？別再盲目灌黑咖啡！這個冰冰涼涼的小動作，懂精緻保養的女孩都在偷偷做！」',
+        scores: { profit: 92, logistics: 90, visual: 96, legal: 88, attach: 90, cycle: 85 },
+        role: '晨間喚醒消沉，高單價利潤主力收割款。',
+        bundle: '搭配洗頭梳或髮帶做滿額湊單，將客單價拉至 $399 以上。',
+        risk: '強調「冰感護理放鬆」，切勿宣稱「提拉消水腫/排毒」。'
       },
       {
-        id: 'p_rope',
+        id: 'sel_rope',
         timeframe: '24h',
-        name: '高頻負重無繩跳繩 (靜音款)',
+        name: '高頻負重無繩跳繩 (雙向金屬軸承靜音款)',
         cat: 'sport',
         cny: 11.5,
         price: 349,
-        shipping: 20,
-        growth: '+380%',
-        salesVol: '2,400 件/日',
+        shipping: 16,
+        packing: 5,
+        defect: 2,
+        growth: '+390%',
         oceanIndex: 92,
-        visualScore: 92,
+        visualScore: 94,
         grade: 'S 級爆款主力',
-        hook: '「住公寓想運動又怕樓下鄰居上來敲門？換成這支無繩跳繩，在家穿著睡衣就能狂暴流汗！」',
-        pain: '久坐滑手機肩頸僵硬',
-        persona: 'fitness_beginner',
-        storyboard: [
-          { time: '0-3s', visual: '穿著居家服的女孩甩動傳統跳繩，繩子打到天花板發出噪音，一臉尷尬。', audio: '傳統跳繩不是打到天花板，就是怕樓下鄰居抗議！' },
-          { time: '3-7s', visual: '拿出粉嫩馬卡龙色無繩跳繩，大號負重實心球在空中平穩旋轉，完全無聲。', audio: '換成這款實心負重無繩款，完全不佔空間、零噪音！' },
-          { time: '7-12s', visual: '女孩在客廳輕鬆跳躍，額頭冒出微汗，運動手錶顯示心率上升。', audio: '追劇看電視順便跳10分鐘，相當於慢跑半小時的爆汗快感～' },
-          { time: '12-15s', visual: '雙向金屬軸承特寫，轉動滑順，彈出限時免運標籤。', audio: '租屋自律女孩人手一組，現在下單現省超商運費！' }
-        ],
-        prompt: 'Modern fitness lifestyle video, an athletic girl joyfully jumping with cordless weighted jump rope in her cozy apartment living room, dynamic lighting, high energy, crisp movements, 4k ultra hd.'
+        hook: '「住公寓想運動又怕吵到樓下鄰居？換成這支無繩跳繩，在家穿著睡衣就能狂暴流汗！」',
+        scores: { profit: 90, logistics: 88, visual: 94, legal: 100, attach: 95, cycle: 88 },
+        role: '下班輕運動第一流量款，自帶強烈短影音視覺展示效果。',
+        bundle: '與 8mm 隔音圓墊合售 $499 解決噪音抗議痛點。',
+        risk: '抽檢軸承滑順度，零法規風險。'
       },
       {
-        id: 'p_peanut',
+        id: 'sel_peanut',
         timeframe: '24h',
-        name: '高密度筋膜舒緩花生球 (足底肩頸)',
+        name: '高密度筋膜舒緩花生球 (足底/肩頸專用)',
         cat: 'sport',
         cny: 4.8,
         price: 199,
         shipping: 10,
-        growth: '+175%',
-        salesVol: '940 件/日',
-        oceanIndex: 85,
+        packing: 3,
+        defect: 1,
+        growth: '+180%',
+        oceanIndex: 86,
         visualScore: 86,
         grade: 'A 級高連帶配件',
         hook: '「滑手機滑到肩頸像灌鉛？踩在腳底滾動三分鐘，整個人通體舒暢的感覺真的太爽了！」',
-        pain: '久坐滑手機肩頸僵硬',
-        persona: 'office_girl',
-        storyboard: [
-          { time: '0-3s', visual: '辦公室女孩揉著僵硬脖子，表情苦不堪言。', audio: '天天低頭盯電腦，肩膀硬得像石頭一樣？' },
-          { time: '3-7s', visual: '靠在牆上用硅膠花生球按壓後頸與肩胛骨，露出放鬆深呼吸神情。', audio: '靠著牆壁壓住這顆雙球，精準命中痛點深層舒緩！' },
-          { time: '7-12s', visual: '赤腳踩在花生球上，由前往後輕輕來回滾動腳底足弓。', audio: '回家踩在腳底滾一滾，整天的疲勞瞬間卸下一大半～' },
-          { time: '12-15s', visual: '手掌拿起馬卡龍色花生球特寫，彈出加價購 $99 標籤。', audio: '跳繩女孩購物車必帶，加價購百元有找帶回家！' }
-        ],
-        prompt: 'Minimalist aesthetic wellness shot, a woman relaxing her neck and feet with a pastel silicone massage ball in a warm sunlight room, soothing and comfortable vibe, 4k.'
+        scores: { profit: 92, logistics: 96, visual: 86, legal: 96, attach: 94, cycle: 90 },
+        role: '跳繩之後的完美連帶加購品，極低退貨率。',
+        bundle: '跳繩買家直接以加價購 $99 帶走。',
+        risk: '宣稱「深層按壓舒緩」，不得宣稱「治療筋膜炎/活血」。'
       },
 
       // 7D 飆升成長榜
       {
-        id: 'p_scrubber',
+        id: 'sel_scrubber',
         timeframe: '7d',
-        name: '矽膠頭皮深層洗頭梳 (食品級軟齒)',
+        name: '全矽膠頭皮深層洗頭梳 (食品級親膚軟齒)',
         cat: 'living',
         cny: 2.2,
         price: 49,
-        shipping: 8,
-        growth: '+145%',
-        salesVol: '5,800 件/週',
-        oceanIndex: 80,
+        shipping: 4,
+        packing: 2,
+        defect: 0.5,
+        growth: '+150%',
+        oceanIndex: 82,
         visualScore: 88,
         grade: 'A 級引流衝評款',
-        hook: '「洗完頭隔天下午就出油扁塌？不是洗髮精不夠貴，是你從來沒真正洗乾淨頭皮！」',
-        pain: '睡前焦慮難以放鬆',
-        persona: 'office_girl',
-        storyboard: [
-          { time: '0-3s', visual: '洗澡時手指抓頭髮，長指甲扯斷髮絲的痛苦表情。', audio: '每次洗頭用指甲抓得頭皮好痛，頭髮還掉一堆？' },
-          { time: '3-7s', visual: '柔軟矽膠洗頭梳在濕髮上畫圈，瞬間爆出濃密如雲朵般的豐盈泡沫。', audio: '試試這款食品級全矽膠洗頭梳！輕輕搓揉就能爆出滿滿綿密泡泡！' },
-          { time: '7-12s', visual: '特寫梳齒在頭皮輕柔按摩，洗淨每一處髮根油垢，神情超享受。', audio: '像給頭皮做了一次深度沙龍級 SPA，洗完髮根蓬鬆會呼吸～' },
-          { time: '12-15s', visual: '乾淨俐落甩乾水珠，一沖即淨不卡頭髮，彈出加價購 $49 標籤。', audio: '銅板價只要幾十塊，全店滿額順手帶走它！' }
-        ],
-        prompt: 'ASMR bath aesthetic video, close up macro shot of soft pastel silicone scalp massager rubbing through silky hair with rich creamy lather foam, water droplets, luxurious bathroom atmosphere.'
+        hook: '「洗完頭隔天下午就出油扁塌？不是洗髮精不夠好，是你從來沒真正洗乾淨頭皮！」',
+        scores: { profit: 82, logistics: 100, visual: 88, legal: 100, attach: 98, cycle: 95 },
+        role: '零客訴超低成本引流款，全店滿額免運湊單神器。',
+        bundle: '買任何主力商品加價購 $39 順手帶走。',
+        risk: '毛利金額小，禁止單獨免運出貨，必須搭配滿額。'
       },
       {
-        id: 'p_mat',
+        id: 'sel_mat',
         timeframe: '7d',
-        name: '加厚高密 TPE 隔音跳繩減震小圓墊',
+        name: '加厚 8mm 高密 TPE 隔音跳繩減震小圓墊',
         cat: 'sport',
         cny: 8.5,
         price: 249,
-        shipping: 22,
-        growth: '+120%',
-        salesVol: '3,200 件/週',
+        shipping: 18,
+        packing: 5,
+        defect: 1.5,
+        growth: '+125%',
         oceanIndex: 90,
-        visualScore: 82,
+        visualScore: 84,
         grade: 'A 級組合搭售款',
         hook: '「租屋族跳繩最怕隔壁抗議！鋪上這張 8mm 加厚隔音圓墊，半夜跳繩樓下都聽不到！」',
-        pain: '久坐滑手機肩頸僵硬',
-        persona: 'fitness_beginner',
-        storyboard: [
-          { time: '0-3s', visual: '女孩在木地板跳躍發出震動聲，一臉擔心樓下抗議。', audio: '住公寓套房想運動，每次跳都怕吵到樓下鄰居？' },
-          { time: '3-7s', visual: '腳踩在加厚粉色小圓墊上，雞蛋掉落在墊子上毫無破損彈跳。', audio: '這塊 8mm 加厚減震墊，吸震降噪超給力！' },
-          { time: '7-12s', visual: '赤腳在小圓墊上輕盈跳繩，雙腳落地柔軟不震膝蓋。', audio: '保護腳踝膝蓋，小巧直徑客廳一鋪就能動～' },
-          { time: '12-15s', visual: '捲起收納於沙發縫隙，顯示跳繩組合折 $50 標籤。', audio: '搭配無繩跳繩一起下單現折 $50！' }
-        ],
-        prompt: 'Quiet indoor home workout scene, young girl jumping on high density pastel round fitness mat, egg dropping test showing shock absorption, bright and clean modern apartment.'
+        scores: { profit: 86, logistics: 76, visual: 84, legal: 100, attach: 96, cycle: 90 },
+        role: '跳繩的命定配件，直接消除顧客猶豫心理。',
+        bundle: '跳繩 + 圓墊合售促銷，快速擊穿超商滿額免運。',
+        risk: '圓墊有捲曲包裝尺寸，需確認超商出貨體積合規。'
       },
-
-      // 30D 穩定長銷榜
       {
-        id: 'p_drybrush',
-        timeframe: '30d',
-        name: '天然豬鬃木柄乾刷 (歐美晨間煥膚)',
+        id: 'sel_drybrush',
+        timeframe: '7d',
+        name: '天然豬鬃木柄乾刷 (歐美晨間煥膚刷)',
         cat: 'care',
         cny: 8.8,
         price: 259,
-        shipping: 14,
-        growth: '+65%',
-        salesVol: '8,600 件/月',
+        shipping: 12,
+        packing: 4,
+        defect: 1.0,
+        growth: '+110%',
         oceanIndex: 94,
         visualScore: 90,
         grade: 'S 級高客單品',
         hook: '「歐美名模都在偷偷做的乾刷法！洗澡前順著手臂輕輕刷兩分鐘，肌膚摸起來嫩得像豆腐！」',
-        pain: '晨間喚醒放鬆',
-        persona: 'office_girl',
-        storyboard: [
-          { time: '0-3s', visual: '晨光穿透浴室百葉窗，特寫天然豬鬃毛在原木手柄上的細膩質感。', audio: '洗澡前花兩分鐘乾刷，是很多精緻博主的私藏儀式！' },
-          { time: '3-7s', visual: '女孩手握木柄，順著手臂與腿部由下往上溫柔輕刷。', audio: '天然豬鬃毛軟硬適中，輕輕帶走老廢角質，膚觸超清爽～' },
-          { time: '7-12s', visual: '刷洗後肌膚散發自然健康透亮光澤，神情愜意自信。', audio: '洗完澡擦身體乳吸收快一倍，每天都像在家做 SPA！' },
-          { time: '12-15s', visual: '原木乾刷搭配棉麻束口袋特寫，顯示全店滿 $599 現折券。', audio: '滿調 RHYTHM 熱銷禮盒款，點擊連結即可擁有！' }
-        ],
-        prompt: 'Aesthetic Scandinavian lifestyle, beautiful Asian woman dry brushing her smooth arm with a wooden natural bristle brush before shower, soft warm sunlight, 4k ultra hd.'
+        scores: { profit: 91, logistics: 92, visual: 90, legal: 94, attach: 86, cycle: 92 },
+        role: '高生活品味生活款，自帶極高品牌調性。',
+        bundle: '搭配洗頭梳或棉麻收納袋做美學禮盒裝。',
+        risk: '強調「物理去老廢角質」，避開「淋巴排毒」詞彙。'
       },
+
+      // 30D 穩定長銷榜
       {
-        id: 'p_towel',
+        id: 'sel_towel',
         timeframe: '30d',
         name: '珊瑚絨秒吸水加厚刺繡乾髮帽',
         cat: 'living',
         cny: 3.2,
         price: 79,
-        shipping: 6,
-        growth: '+48%',
-        salesVol: '14,200 件/月',
-        oceanIndex: 82,
-        visualScore: 84,
+        shipping: 5,
+        packing: 2.5,
+        defect: 0.5,
+        growth: '+52%',
+        oceanIndex: 80,
+        visualScore: 82,
         grade: 'A 級加購神物',
         hook: '「長頭髮洗完吹半小時手超酸？包上這頂吸水乾髮帽，追一集劇頭髮已經八分乾了！」',
-        pain: '睡前焦慮難以放鬆',
-        persona: 'office_girl',
-        storyboard: [
-          { time: '0-3s', visual: '濕漉漉的長髮滴水，拿著吹風機吹得滿頭大汗手臂酸痛。', audio: '長頭髮洗完最怕吹頭髮，吹到手酸滿身大汗！' },
-          { time: '3-7s', visual: '套上鬆軟像雲朵般的厚實珊瑚絨乾髮帽，一扭一扣 3 秒固定。', audio: '換上這頂高密度珊瑚絨乾髮帽，秒速吸走髮絲水份！' },
-          { time: '7-12s', visual: '女孩敷著面膜輕鬆敷臉看書，解開帽子頭髮已蓬鬆微乾。', audio: '包著去敷面膜看電視，吹頭髮只要三分鐘搞定～' },
-          { time: '12-15s', visual: '洗頭梳 + 乾髮帽合售套裝跳出加購價 $49。', audio: '買洗頭梳順手加購，直接帶走超值沐浴組合！' }
-        ],
-        prompt: 'Cozy night routine scene, girl wearing a cute pastel plush hair towel wrap while applying facial cream, cozy aesthetic room, warm and relaxing.'
+        scores: { profit: 88, logistics: 98, visual: 82, legal: 100, attach: 96, cycle: 95 },
+        role: '洗頭梳買家的天然加購品，精緻女孩剛需。',
+        bundle: '洗頭梳 + 乾髮帽合售 $119。',
+        risk: '注意布料包裝防潮。'
+      },
+      {
+        id: 'sel_strap',
+        timeframe: '30d',
+        name: '雙面矽膠加長拉背搓澡巾',
+        cat: 'living',
+        cny: 3.5,
+        price: 89,
+        shipping: 6,
+        packing: 3,
+        defect: 0.5,
+        growth: '+45%',
+        oceanIndex: 85,
+        visualScore: 80,
+        grade: 'A 級湊單好物',
+        hook: '「洗澡刷不到後背超痛苦？這條加長矽膠搓澡巾，洗背不求人洗得超乾淨！」',
+        scores: { profit: 89, logistics: 98, visual: 80, legal: 100, attach: 92, cycle: 96 },
+        role: '零損耗日常消耗品，滿額送禮或低價加購最佳選擇。',
+        bundle: '全店滿 $499 加價 $49 帶走。',
+        risk: '零破損零法規問題。'
       }
     ];
 
-    // 狀態變數
-    let currentRadarTimeframe = '24h';
-    let currentRadarFilter = 'all';
-    let compareWatchlist = [];
+    // 全域當前狀態
+    let currentTimeframe = '24h';
+    let currentCategory = 'all';
+    let currentWorkingItem = JSON.parse(JSON.stringify(SELECTION_ITEMS[0])); // 預設粉晶滾輪
+    let pkWatchlist = [];
 
-    // 渲染雷達卡片 (支援時序、品類、排序、搜尋與 PK 標記)
-    function renderRadarCards() {
+    // 頁面加載初始化
+    window.addEventListener('DOMContentLoaded', () => {
+      renderRadarProducts();
+      syncItemToVetting(currentWorkingItem);
+      syncItemToCalculator(currentWorkingItem);
+      renderPkTable();
+    });
+
+    // 渲染市場雷達商品卡片
+    function renderRadarProducts() {
       const container = document.getElementById('radarCardsGrid');
       container.innerHTML = '';
 
-      const searchKeyword = document.getElementById('radarSearchInput').value.toLowerCase().trim();
-      const sortOrder = document.getElementById('radarSortOrder').value;
+      const searchKey = document.getElementById('radarSearchBox').value.toLowerCase().trim();
+      const sortVal = document.getElementById('radarSortSelect').value;
 
-      let list = RADAR_PRODUCTS.filter(item => {
-        const matchTf = (item.timeframe === currentRadarTimeframe || !item.timeframe);
-        const matchCat = (currentRadarFilter === 'all' || item.cat === currentRadarFilter);
-        const matchSearch = (!searchKeyword || item.name.toLowerCase().includes(searchKeyword) || item.hook.toLowerCase().includes(searchKeyword));
+      let list = SELECTION_ITEMS.filter(item => {
+        const matchTf = (item.timeframe === currentTimeframe || !item.timeframe);
+        const matchCat = (currentCategory === 'all' || item.cat === currentCategory);
+        const matchSearch = (!searchKey || item.name.toLowerCase().includes(searchKey) || item.hook.toLowerCase().includes(searchKey));
         return matchTf && matchCat && matchSearch;
       });
 
-      // 排序機制
+      // 排序計算
       list.sort((a, b) => {
-        const netA = calcQuickNet(a);
-        const netB = calcQuickNet(b);
-        const marginA = (netA / a.price);
-        const marginB = (netB / b.price);
-
-        if (sortOrder === 'growth') {
+        const netA = calcNetMargin(a);
+        const netB = calcNetMargin(b);
+        if (sortVal === 'growth') {
           return parseInt(b.growth.replace(/\D/g, '')) - parseInt(a.growth.replace(/\D/g, ''));
-        } else if (sortOrder === 'margin') {
-          return marginB - marginA;
-        } else if (sortOrder === 'ocean') {
+        } else if (sortVal === 'margin') {
+          return netB.margin - netA.margin;
+        } else if (sortVal === 'ocean') {
           return (b.oceanIndex || 80) - (a.oceanIndex || 80);
-        } else if (sortOrder === 'price_asc') {
+        } else if (sortVal === 'price_asc') {
           return a.price - b.price;
-        } else if (sortOrder === 'price_desc') {
+        } else if (sortVal === 'price_desc') {
           return b.price - a.price;
         }
         return 0;
       });
 
-      // 更新頂部統計資訊
-      document.getElementById('radarStatCount').innerText = `${list.length} 款潛力爆品`;
+      // 更新頂部指標
+      document.getElementById('radarTotalCount').innerText = `${list.length} 款標竿品`;
       if (list.length > 0) {
-        const avgMargin = list.reduce((acc, cur) => acc + ((calcQuickNet(cur) / cur.price) * 100), 0) / list.length;
-        document.getElementById('radarStatAvgMargin').innerText = `${avgMargin.toFixed(1)}%`;
+        const avg = list.reduce((acc, cur) => acc + calcNetMargin(cur).margin, 0) / list.length;
+        document.getElementById('radarAvgMargin').innerText = `${avg.toFixed(1)}%`;
       }
 
       if (list.length === 0) {
-        container.innerHTML = `<div class="col-span-3 py-16 text-center text-slate-500 text-xs">該時序與品類篩選下暫無商品，請調整條件或點擊「自訂選品沙盒」加入新貨品！</div>`;
+        container.innerHTML = `<div class="col-span-3 py-16 text-center text-slate-500 text-xs">該時序與品類下暫無商品，請點選右上角「自訂選品沙盒」輸入新商品！</div>`;
         return;
       }
 
       list.forEach(item => {
-        const costTwd = Math.round(item.cny * 4.6);
-        const quickNet = Math.round(calcQuickNet(item));
-        const marginPct = ((quickNet / item.price) * 100).toFixed(1);
-        const isCompared = compareWatchlist.some(x => x.id === item.id);
+        const financial = calcNetMargin(item);
+        const isAddedPk = pkWatchlist.some(p => p.id === item.id);
 
         const card = document.createElement('div');
         card.className = "bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl hover:border-brand-500/50 transition flex flex-col justify-between group";
@@ -664,59 +918,57 @@
           <div>
             <div class="flex justify-between items-start mb-2.5">
               <div class="flex items-center gap-1.5 flex-wrap">
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-950 text-brand-300 border border-brand-800/80">
-                  ${getCategoryLabel(item.cat)}
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-950 text-brand-300 border border-brand-800">
+                  ${getCategoryTag(item.cat)}
                 </span>
                 <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
                   ${item.grade || 'S 級主力'}
                 </span>
               </div>
               <span class="text-xs font-black text-rose-400 flex items-center gap-1">
-                <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
-                ${item.growth} 帶貨增長
+                <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span>
+                ${item.growth} 帶貨成長
               </span>
             </div>
 
             <h3 class="font-bold text-white text-sm mb-1 group-hover:text-brand-300 transition">${item.name}</h3>
             <p class="text-xs text-slate-400 mb-3 line-clamp-2 leading-relaxed">${item.hook}</p>
             
-            <!-- 核心商業數據網格 -->
-            <div class="grid grid-cols-2 gap-2 bg-slate-950 p-2.5 rounded-xl text-xs mb-3 border border-slate-800/80">
+            <div class="grid grid-cols-2 gap-2 bg-slate-950 p-2.5 rounded-xl text-xs mb-3 border border-slate-800">
               <div>
-                <span class="text-slate-500 block text-[10px]">1688 進價換算</span>
-                <span class="font-bold text-slate-300">¥${item.cny} <span class="text-[10px] font-normal text-slate-500">(~NT$${costTwd})</span></span>
+                <span class="text-slate-500 block text-[10px]">1688 原廠批發</span>
+                <span class="font-bold text-slate-200">¥${item.cny} <span class="text-[10px] text-slate-500 font-normal">(~NT$${Math.round(item.cny * 4.6)})</span></span>
               </div>
               <div>
                 <span class="text-slate-500 block text-[10px]">建議蝦皮售價</span>
                 <span class="font-bold text-brand-400">NT$ ${item.price}</span>
               </div>
               <div>
-                <span class="text-slate-500 block text-[10px]">單件預估純淨利</span>
-                <span class="font-bold text-emerald-400">NT$ ${quickNet}</span>
+                <span class="text-slate-500 block text-[10px]">單單純淨利</span>
+                <span class="font-bold text-emerald-400">NT$ ${Math.round(financial.net)}</span>
               </div>
               <div>
-                <span class="text-slate-500 block text-[10px]">預估淨利潤率</span>
-                <span class="font-bold ${marginPct >= 50 ? 'text-emerald-400' : 'text-amber-400'}">${marginPct}%</span>
+                <span class="text-slate-500 block text-[10px]">預估淨利率</span>
+                <span class="font-bold ${financial.margin >= 50 ? 'text-emerald-400' : 'text-amber-400'}">${financial.margin.toFixed(1)}%</span>
               </div>
             </div>
 
-            <!-- 維度徽章標籤 -->
-            <div class="flex items-center gap-2 text-[10px] text-slate-400 mb-4">
-              <span class="bg-indigo-950/80 text-indigo-300 px-2 py-0.5 rounded border border-indigo-800/60 font-medium">
+            <div class="flex items-center gap-2 text-[10px] text-slate-400 mb-3">
+              <span class="bg-indigo-950 text-indigo-300 px-2 py-0.5 rounded border border-indigo-800/60 font-medium">
                 藍海指數: ${item.oceanIndex || 85}分
               </span>
-              <span class="bg-purple-950/80 text-purple-300 px-2 py-0.5 rounded border border-purple-800/60 font-medium">
+              <span class="bg-purple-950 text-purple-300 px-2 py-0.5 rounded border border-purple-800/60 font-medium">
                 短影音吸睛: ${item.visualScore || 90}分
               </span>
             </div>
           </div>
 
           <div class="pt-3 border-t border-slate-800/80 grid grid-cols-2 gap-2">
-            <button onclick="selectRadarItem('${item.id}')" class="py-2 bg-slate-800 hover:bg-brand-600 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 shadow-sm">
-              <span>⚡ 導入影音工作室</span>
+            <button onclick="loadItemToVetting('${item.id}')" class="py-2 bg-slate-800 hover:bg-brand-600 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 shadow-sm">
+              <span>🎯 載入六維體檢</span>
             </button>
-            <button onclick="toggleCompareItem('${item.id}')" class="py-2 ${isCompared ? 'bg-rose-900/60 text-rose-300 border border-rose-700' : 'bg-slate-950 hover:bg-slate-800 text-slate-300 border border-slate-700'} rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1">
-              <span>${isCompared ? '✓ 已在比對中' : '➕ 加入 PK'}</span>
+            <button onclick="togglePkItem('${item.id}')" class="py-2 ${isAddedPk ? 'bg-rose-950 text-rose-300 border border-rose-800' : 'bg-slate-950 hover:bg-slate-800 text-slate-300 border border-slate-800'} rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1">
+              <span>${isAddedPk ? '✓ 已在PK庫' : '➕ 加入PK'}</span>
             </button>
           </div>
         `;
@@ -724,472 +976,351 @@
       });
     }
 
-    // 計算預估單件淨利 (扣除落地成本與 16.5% 平台費)
-    function calcQuickNet(item) {
-      const landed = (item.cny * 4.6) + (item.shipping || 15);
-      const fee = (item.price * 0.165) + 2.5;
-      return item.price - landed - fee;
+    // 計算扣除落地成本與 16.5% 平台抽成後的單件純淨利與淨利率
+    function calcNetMargin(item) {
+      const landed = (item.cny * 4.6) + (item.shipping || 12) + (item.packing || 4) + (item.defect || 2);
+      const platformFee = (item.price * 0.165) + 2.5;
+      const net = item.price - landed - platformFee;
+      const margin = item.price > 0 ? (net / item.price) * 100 : 0;
+      return { landed, platformFee, net, margin };
     }
 
-    function getCategoryLabel(cat) {
+    function getCategoryTag(cat) {
       if (cat === 'care') return '🧖‍♀️ 居家SPA保養';
       if (cat === 'sport') return '🏃 輕量居家體態';
       if (cat === 'living') return '🛁 沉浸日用儀式';
-      return '✨ 美學嚴選';
+      return '✨ 質感選物';
     }
 
-    // 切換時序雷達
-    function setRadarTimeframe(tf) {
-      currentRadarTimeframe = tf;
-      document.querySelectorAll('.rtf-btn').forEach(btn => {
+    // 切換時序榜單
+    function setTimeframe(tf) {
+      currentTimeframe = tf;
+      document.querySelectorAll('.tf-btn').forEach(btn => {
         btn.classList.remove('bg-brand-600', 'text-white', 'font-bold');
         btn.classList.add('text-slate-400');
       });
-      const activeBtn = document.getElementById(`rtf-${tf}`);
-      if (activeBtn) {
-        activeBtn.classList.add('bg-brand-600', 'text-white', 'font-bold');
-        activeBtn.classList.remove('text-slate-400');
+      const target = document.getElementById(`tf-${tf}`);
+      if (target) {
+        target.classList.add('bg-brand-600', 'text-white', 'font-bold');
+        target.classList.remove('text-slate-400');
       }
-      renderRadarCards();
+
+      const desc = document.getElementById('tfDescription');
+      if (tf === '24h') desc.innerText = '短影音單日高動銷突發品 (TikTok/蝦皮短片飆升)';
+      else if (tf === '7d') desc.innerText = '連續一週銷量急速上升的潛力新星品';
+      else desc.innerText = '全月銷售穩定抗季節的長銷型壓艙品';
+
+      renderRadarProducts();
     }
 
-    // 切換品類過濾器
-    function setRadarFilter(cat) {
-      currentRadarFilter = cat;
-      document.querySelectorAll('.rf-btn').forEach(btn => {
+    // 切換品類
+    function setCategoryFilter(cat) {
+      currentCategory = cat;
+      document.querySelectorAll('.cat-btn').forEach(btn => {
         btn.classList.remove('bg-brand-600/30', 'text-brand-300', 'border-brand-500/50', 'font-bold');
         btn.classList.add('bg-slate-800', 'text-slate-400', 'border-slate-700/60');
       });
-      const activeBtn = document.getElementById(`rf-${cat}`);
-      if (activeBtn) {
-        activeBtn.classList.add('bg-brand-600/30', 'text-brand-300', 'border-brand-500/50', 'font-bold');
-        activeBtn.classList.remove('bg-slate-800', 'text-slate-400', 'border-slate-700/60');
+      const target = document.getElementById(`cat-${cat}`);
+      if (target) {
+        target.classList.add('bg-brand-600/30', 'text-brand-300', 'border-brand-500/50', 'font-bold');
+        target.classList.remove('bg-slate-800', 'text-slate-400', 'border-slate-700/60');
       }
-      renderRadarCards();
+      renderRadarProducts();
     }
 
-    // 開關自訂選品沙盒
-    function toggleCustomProductModal() {
-      const box = document.getElementById('customProductBox');
-      box.classList.toggle('hidden');
+    // 將指定商品載入體檢頁面
+    function loadItemToVetting(id) {
+      const found = SELECTION_ITEMS.find(x => x.id === id);
+      if (!found) return;
+
+      currentWorkingItem = JSON.parse(JSON.stringify(found));
+      syncItemToVetting(currentWorkingItem);
+      syncItemToCalculator(currentWorkingItem);
+      switchTab('tab-vetting');
+      showToast(`已載入【${currentWorkingItem.name}】至單品六維體檢！`);
     }
 
-    // 提交自訂商品進入雷達池
-    function submitCustomProductToRadar() {
-      const name = document.getElementById('cstName').value.trim();
-      const cat = document.getElementById('cstCat').value;
-      const cny = parseFloat(document.getElementById('cstCny').value) || 0;
-      const price = parseFloat(document.getElementById('cstPrice').value) || 0;
-      const shipping = parseFloat(document.getElementById('cstShipping').value) || 12;
-      const hook = document.getElementById('cstHook').value.trim();
+    // 同步資料至體檢面板
+    function syncItemToVetting(item) {
+      document.getElementById('vItemName').innerText = item.name;
+      document.getElementById('vPrice').innerText = 'NT$ ' + item.price;
+      
+      const fin = calcNetMargin(item);
+      document.getElementById('vCost').innerText = 'NT$ ' + Math.round(fin.landed);
+      document.getElementById('vNetProfit').innerText = 'NT$ ' + Math.round(fin.net);
+      document.getElementById('vMargin').innerText = fin.margin.toFixed(1) + '%';
+      
+      const bep = Math.ceil((fin.landed + 2.5) / (1 - 0.165));
+      document.getElementById('vBep').innerText = 'NT$ ' + bep;
 
-      if (!name || price <= 0 || cny <= 0) {
-        showToast('請完整輸入商品名稱、進價與售價！');
+      document.getElementById('vActionRole').innerText = `場景角色：${item.role || '高毛利主力款'}`;
+      document.getElementById('vActionBundle').innerText = `搭售策略：${item.bundle || '搭配滿額湊單拉抬客單價'}`;
+      document.getElementById('vActionRisk').innerText = `法規紅線：${item.risk || '避開醫療療效詞彙'}`;
+
+      // 滑桿設定
+      for (const [dim, val] of Object.entries(item.scores || {})) {
+        const slider = document.getElementById(`slider${capitalize(dim)}`);
+        const valSpan = document.getElementById(`valDim${capitalize(dim)}`);
+        if (slider) slider.value = val;
+        if (valSpan) valSpan.innerText = val + '分';
+      }
+
+      recalcVettingScores();
+    }
+
+    function capitalize(s) {
+      return s.charAt(0).toUpperCase() + s.slice(1);
+    }
+
+    // 重算體檢六維得分
+    function recalcVettingScores() {
+      const dims = ['profit', 'logistics', 'visual', 'legal', 'attach', 'cycle'];
+      const weights = { profit: 0.25, logistics: 0.20, visual: 0.20, legal: 0.15, attach: 0.10, cycle: 0.10 };
+
+      let weightedSum = 0;
+
+      dims.forEach(dim => {
+        const cap = capitalize(dim);
+        const slider = document.getElementById(`slider${cap}`);
+        const valSpan = document.getElementById(`valDim${cap}`);
+        const val = parseInt(slider.value) || 80;
+
+        valSpan.innerText = val + '分';
+        weightedSum += val * weights[dim];
+      });
+
+      const totalScore = weightedSum.toFixed(1);
+      document.getElementById('vTotalScore').innerText = totalScore;
+
+      const badge = document.getElementById('vGradeBadge');
+      const title = document.getElementById('vGradeTitle');
+      const sum = document.getElementById('vGradeSummary');
+
+      if (totalScore >= 85) {
+        badge.className = "px-3 py-1 text-xs font-black rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800";
+        badge.innerText = "S 級爆款主力";
+        title.innerText = "超高毛利・高受眾黏著度・自帶短影音話題";
+        sum.innerText = "各項指標皆在天花板水準，是能扛起整間店營業額與知名度的鎮店王牌，建議全力布局！";
+      } else if (totalScore >= 70) {
+        badge.className = "px-3 py-1 text-xs font-black rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800";
+        badge.innerText = "A 級高連帶配件";
+        title.innerText = "指標健康・適合搭售・抗風險力穩";
+        sum.innerText = "具備極佳的加購率與低物流損耗，適合搭配主力爆款作為加價購或第二件折抵組合。";
+      } else {
+        badge.className = "px-3 py-1 text-xs font-black rounded-full bg-amber-950 text-amber-300 border border-amber-800";
+        badge.innerText = "B 級常規備品";
+        title.innerText = "利潤尚可但需注意材積或包裝成本";
+        sum.innerText = "需靠優化源頭供應鏈壓低進價，避免被平台抽成吃掉毛利。";
+      }
+    }
+
+    function resetVettingSliders() {
+      if (!currentWorkingItem || !currentWorkingItem.scores) return;
+      for (const [dim, val] of Object.entries(currentWorkingItem.scores)) {
+        const cap = capitalize(dim);
+        const slider = document.getElementById(`slider${cap}`);
+        if (slider) slider.value = val;
+      }
+      recalcVettingScores();
+      showToast('已重設為商品原始評估值！');
+    }
+
+    // 將資料同步至計算機
+    function syncItemToCalculator(item) {
+      document.getElementById('calcProdName').value = item.name;
+      document.getElementById('calcCny').value = item.cny;
+      document.getElementById('calcPrice').value = item.price;
+      document.getElementById('calcShipping').value = item.shipping || 12;
+      document.getElementById('calcPacking').value = item.packing || 4;
+      document.getElementById('calcDefect').value = item.defect || 2;
+      runFinancialCalculation();
+    }
+
+    // 執行精算邏輯
+    function runFinancialCalculation() {
+      const cny = parseFloat(document.getElementById('calcCny').value) || 0;
+      const fx = parseFloat(document.getElementById('calcFx').value) || 4.6;
+      const price = parseFloat(document.getElementById('calcPrice').value) || 0;
+      const shipping = parseFloat(document.getElementById('calcShipping').value) || 0;
+      const packing = parseFloat(document.getElementById('calcPacking').value) || 0;
+      const defect = parseFloat(document.getElementById('calcDefect').value) || 0;
+
+      const freeShip = document.getElementById('calcChkFreeShip').checked;
+      const coins = document.getElementById('calcChkCoins').checked;
+      const promo = document.getElementById('calcChkPromoDay').checked;
+
+      const costTwd = cny * fx;
+      const landedTotal = costTwd + shipping + packing + defect;
+
+      let rate = 8.0; // 成交 5.5% + 金流 2.5%
+      if (freeShip) rate += 6.0;
+      if (coins) rate += 3.0;
+      if (freeShip && coins) rate -= 0.5;
+      if (promo) rate += 2.0;
+
+      const invoiceFee = 2.5;
+      const platformFee = (price * (rate / 100)) + invoiceFee;
+      const netProfit = price - landedTotal - platformFee;
+      const margin = price > 0 ? (netProfit / price) * 100 : 0;
+      const roi = landedTotal > 0 ? (netProfit / landedTotal) * 100 : 0;
+      const bep = (landedTotal + invoiceFee) / (1 - (rate / 100));
+
+      document.getElementById('resCostTwd').innerText = 'NT$ ' + costTwd.toFixed(1);
+      document.getElementById('resLandedTotal').innerText = 'NT$ ' + landedTotal.toFixed(1);
+      document.getElementById('resPlatformRate').innerText = rate.toFixed(1) + '%';
+      document.getElementById('resPlatformFee').innerText = 'NT$ ' + platformFee.toFixed(1);
+      document.getElementById('resNetProfit').innerText = 'NT$ ' + netProfit.toFixed(1);
+      document.getElementById('resMarginPct').innerText = margin.toFixed(1) + '%';
+      document.getElementById('resRoiPct').innerText = roi.toFixed(1) + '%';
+      document.getElementById('resBepPrice').innerText = 'NT$ ' + Math.ceil(bep);
+    }
+
+    // 自訂選品沙盒提交
+    function submitCustomProduct() {
+      const name = document.getElementById('custName').value.trim();
+      const cat = document.getElementById('custCat').value;
+      const cny = parseFloat(document.getElementById('custCny').value) || 0;
+      const price = parseFloat(document.getElementById('custPrice').value) || 0;
+      const shipping = parseFloat(document.getElementById('custShipping').value) || 12;
+      const ocean = parseInt(document.getElementById('custOcean').value) || 85;
+      const hook = document.getElementById('custHook').value.trim();
+
+      if (!name || cny <= 0 || price <= 0) {
+        showToast('請完整填寫商品名稱、進貨底價與售價！');
         return;
       }
 
-      const newId = 'custom_' + Date.now();
-      const customItem = {
-        id: newId,
-        timeframe: currentRadarTimeframe,
+      const newItem = {
+        id: 'cust_' + Date.now(),
+        timeframe: currentTimeframe,
         name: name,
         cat: cat,
         cny: cny,
         price: price,
         shipping: shipping,
-        growth: '+100% (新收錄)',
-        oceanIndex: 90,
-        visualScore: 88,
+        packing: 4,
+        defect: 2,
+        growth: '+100% (新加入)',
+        oceanIndex: ocean,
+        visualScore: 90,
         grade: 'S 級自選新星',
-        hook: hook || `「你還在為挑不到好物煩惱？試試這款【${name}】，精緻女孩的生活美學標配！」`,
-        pain: '日常自我放鬆',
-        persona: 'office_girl',
-        storyboard: [
-          { time: '0-3s', visual: `特寫【${name}】拆開包裝的高質感細節。`, audio: `還在觀望？這款最近被瘋搶的【${name}】真的太值了！` },
-          { time: '3-7s', visual: `實際在日常情境中使用【${name}】，動作滑順優雅。`, audio: `手感溫潤自然，用起來既省時又非常療癒放鬆～` },
-          { time: '7-12s', visual: `使用後整個人身心放鬆神情，對鏡微笑。`, audio: `每天給自己保留幾分鐘沉浸時光，真的會愛上這種生活節奏！` },
-          { time: '12-15s', visual: `畫面定格優惠券與商品精美外觀。`, audio: `現正開幕特惠免運中，現在下單直接現折！` }
-        ],
-        prompt: `Cinematic high-end product commercial video for ${name}, elegant modern indoor environment, warm studio lighting, 4k photorealistic.`
+        hook: hook,
+        scores: { profit: 92, logistics: 90, visual: 90, legal: 95, attach: 90, cycle: 90 },
+        role: '自選潛力爆款，具備高毛利與短影音帶貨屬性。',
+        bundle: '可與店內常青配件做加購搭售。',
+        risk: '注意核對 1688 原廠批次品質。'
       };
 
-      RADAR_PRODUCTS.unshift(customItem);
-      toggleCustomProductModal();
-      renderRadarCards();
+      SELECTION_ITEMS.unshift(newItem);
+      renderRadarProducts();
+      loadItemToVetting(newItem.id);
       showToast(`已成功收錄【${name}】至選品情報庫！`);
     }
 
-    // 橫向 PK 對比庫切換與渲染
-    function toggleCompareItem(id) {
-      const found = RADAR_PRODUCTS.find(x => x.id === id);
+    // 候選品 PK 比對庫操作
+    function togglePkItem(id) {
+      const found = SELECTION_ITEMS.find(x => x.id === id);
       if (!found) return;
 
-      const idx = compareWatchlist.findIndex(x => x.id === id);
+      const idx = pkWatchlist.findIndex(x => x.id === id);
       if (idx > -1) {
-        compareWatchlist.splice(idx, 1);
+        pkWatchlist.splice(idx, 1);
         showToast(`已自比對庫移除【${found.name}】`);
       } else {
-        if (compareWatchlist.length >= 6) {
+        if (pkWatchlist.length >= 6) {
           showToast('PK 對比庫最多同時支援 6 款商品！');
           return;
         }
-        compareWatchlist.push(found);
+        pkWatchlist.push(found);
         showToast(`已將【${found.name}】加入 PK 對比庫！`);
       }
 
-      renderRadarCards();
-      renderCompareTable();
+      renderRadarProducts();
+      renderPkTable();
     }
 
-    function renderCompareTable() {
-      const tbody = document.getElementById('compareTableBody');
-      const emptyTip = document.getElementById('compareEmptyTip');
-      const badge = document.getElementById('compareCountBadge');
+    function addCurrentItemToPk() {
+      if (!currentWorkingItem) return;
+      togglePkItem(currentWorkingItem.id);
+    }
 
-      badge.innerText = `已加入 ${compareWatchlist.length} 款`;
+    function renderPkTable() {
+      const tbody = document.getElementById('pkTableBody');
+      const emptyTip = document.getElementById('pkEmptyTip');
+      const badge = document.getElementById('pkTableCountBadge');
+      const navBadge = document.getElementById('navPkCount');
+
+      badge.innerText = `已加入 ${pkWatchlist.length} 款`;
+      navBadge.innerText = pkWatchlist.length;
       tbody.innerHTML = '';
 
-      if (compareWatchlist.length === 0) {
+      if (pkWatchlist.length === 0) {
         emptyTip.classList.remove('hidden');
         return;
       }
 
       emptyTip.classList.add('hidden');
 
-      compareWatchlist.forEach((item, index) => {
-        const landedCost = Math.round((item.cny * 4.6) + (item.shipping || 15));
-        const quickNet = Math.round(calcQuickNet(item));
-        const marginPct = ((quickNet / item.price) * 100).toFixed(1);
-        const bep = Math.ceil((landedCost + 2.5) / (1 - 0.165));
+      pkWatchlist.forEach(item => {
+        const fin = calcNetMargin(item);
+        const bep = Math.ceil((fin.landed + 2.5) / (1 - 0.165));
 
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-950/60 transition";
         tr.innerHTML = `
           <td class="p-3 font-bold text-white">${item.name}</td>
           <td class="p-3 font-semibold text-brand-300">NT$ ${item.price}</td>
-          <td class="p-3 text-slate-400">NT$ ${landedCost}</td>
-          <td class="p-3 font-bold text-emerald-400">NT$ ${quickNet}</td>
-          <td class="p-3 font-black ${marginPct >= 50 ? 'text-emerald-400' : 'text-amber-400'}">${marginPct}%</td>
+          <td class="p-3 text-slate-400">NT$ ${Math.round(fin.landed)}</td>
+          <td class="p-3 font-bold text-emerald-400">NT$ ${Math.round(fin.net)}</td>
+          <td class="p-3 font-black ${fin.margin >= 50 ? 'text-emerald-400' : 'text-amber-400'}">${fin.margin.toFixed(1)}%</td>
           <td class="p-3 text-slate-300">NT$ ${bep}</td>
           <td class="p-3 text-indigo-300 font-semibold">${item.oceanIndex || 85} 分</td>
-          <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-200 border border-slate-700">${item.grade || 'S 級爆款'}</span></td>
+          <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-200 border border-slate-700">${item.grade || 'S 級主力'}</span></td>
           <td class="p-3">
-            <button onclick="toggleCompareItem('${item.id}')" class="text-rose-400 hover:text-rose-300">移除</button>
+            <button onclick="togglePkItem('${item.id}')" class="text-rose-400 hover:text-rose-300">移除</button>
           </td>
         `;
         tbody.appendChild(tr);
       });
     }
 
-    function clearCompareList() {
-      compareWatchlist = [];
-      renderRadarCards();
-      renderCompareTable();
-      showToast('比對庫已清空！');
+    function clearPkList() {
+      pkWatchlist = [];
+      renderRadarProducts();
+      renderPkTable();
+      showToast('比對清單已清空！');
     }
 
-    // 初始化頁面調用
-    window.addEventListener('DOMContentLoaded', () => {
-      setRadarTimeframe('24h');
-      renderCompareTable();
-    });
-
-    // 渲染雷達卡片
-    function renderRadarCards(filter) {
-      const container = document.getElementById('radarCardsGrid');
-      container.innerHTML = '';
-
-      let list = RADAR_PRODUCTS;
-      if (filter !== 'all') {
-        list = list.filter(x => x.cat === filter);
-      }
-
-      list.forEach(item => {
-        const card = document.createElement('div');
-        card.className = "bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl hover:border-brand-500/50 transition flex flex-col justify-between";
-        card.innerHTML = `
-          <div>
-            <div class="flex justify-between items-start mb-2">
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-900/50 text-brand-300 border border-brand-700/50">
-                ${item.cat === 'care' ? '🧖‍♀️ 居家保養' : '🏃 輕量體態'}
-              </span>
-              <span class="text-xs font-black text-rose-400">${item.growth} 帶貨增長</span>
-            </div>
-            <h3 class="font-bold text-white text-sm mb-1">${item.name}</h3>
-            <p class="text-xs text-slate-400 mb-3 line-clamp-2">${item.hook}</p>
-            
-            <div class="grid grid-cols-2 gap-2 bg-slate-950 p-2.5 rounded-xl text-xs mb-4 border border-slate-800">
-              <div>
-                <span class="text-slate-500 block text-[10px]">1688 進貨底價</span>
-                <span class="font-bold text-slate-300">¥${item.cny}</span>
-              </div>
-              <div>
-                <span class="text-slate-500 block text-[10px]">建議蝦皮價</span>
-                <span class="font-bold text-brand-400">NT$ ${item.price}</span>
-              </div>
-            </div>
-          </div>
-
-          <button onclick="selectRadarItem('${item.id}')" class="w-full py-2 bg-slate-800 hover:bg-brand-600 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm">
-            <span>⚡ 導入影音工作室生成</span>
-          </button>
-        `;
-        container.appendChild(card);
-      });
-    }
-
-    function setRadarFilter(filter) {
-      document.querySelectorAll('.rf-btn').forEach(b => {
-        b.classList.remove('bg-brand-600', 'text-white', 'font-bold');
-        b.classList.add('bg-slate-800', 'text-slate-300');
-      });
-      const activeBtn = document.getElementById(`rf-${filter}`);
-      if (activeBtn) {
-        activeBtn.classList.add('bg-brand-600', 'text-white', 'font-bold');
-        activeBtn.classList.remove('bg-slate-800', 'text-slate-300');
-      }
-      renderRadarCards(filter);
-    }
-
-    // 從雷達選擇品項
-    function selectRadarItem(id) {
-      const found = RADAR_PRODUCTS.find(x => x.id === id);
-      if (!found) return;
-
-      currentItem = JSON.parse(JSON.stringify(found));
-      document.getElementById('studioProdName').value = currentItem.name;
-      document.getElementById('studioPersona').value = currentItem.persona;
-      
-      // 同步財務
-      document.getElementById('finCny').value = currentItem.cny;
-      document.getElementById('finPrice').value = currentItem.price;
-
-      renderCurrentVideoPackage();
-      calcFinance();
-      switchTab('tab-video-studio');
-      showToast(`已成功載入【${currentItem.name}】至影音工作室！`);
-    }
-
-    // 快捷填入
-    function quickFillStudio(name, persona, pain) {
-      document.getElementById('studioProdName').value = name;
-      document.getElementById('studioPersona').value = persona;
-      document.getElementById('studioPainPoint').value = pain;
-      generateAiVideoPackage();
-    }
-
-    // 渲染當前生成的影片包
-    function renderCurrentVideoPackage() {
-      document.getElementById('hookContent').innerText = currentItem.hook;
-      document.getElementById('videoTitleContent').innerText = `${currentItem.name} 3分鐘沉浸體驗！輕鬆打造自律精緻感 ✨ #生活美學`;
-      document.getElementById('aiVideoPromptText').value = currentItem.prompt;
-
-      const container = document.getElementById('storyboardContainer');
-      container.innerHTML = '';
-
-      currentItem.storyboard.forEach((step, idx) => {
-        const stepCard = document.createElement('div');
-        stepCard.className = "bg-slate-950/80 border border-slate-800 rounded-xl p-3.5 space-y-2 relative overflow-hidden";
-        stepCard.innerHTML = `
-          <div class="flex justify-between items-center text-[10px] font-bold">
-            <span class="text-brand-400 bg-brand-950 px-2 py-0.5 rounded border border-brand-800/60">
-              分鏡 ${idx + 1} (${step.time})
-            </span>
-            <span class="text-slate-500">視覺 ＋ 口播同步</span>
-          </div>
-          <div>
-            <span class="text-[10px] text-slate-400 font-semibold block">👀 鏡頭畫面：</span>
-            <p class="text-xs text-slate-200">${step.visual}</p>
-          </div>
-          <div class="pt-1.5 border-t border-slate-800/80">
-            <span class="text-[10px] text-brand-300 font-semibold block">🎙️ 繁中口播旁白：</span>
-            <p class="text-xs text-slate-300 italic">"${step.audio}"</p>
-          </div>
-        `;
-        container.appendChild(stepCard);
-      });
-
-      // 同步到法規檢測框
-      document.getElementById('complianceInput').value = `${currentItem.hook}\n${currentItem.storyboard.map(s => s.audio).join(' ')}`;
-      runComplianceScan();
-    }
-
-    // 點擊生成按鈕 (模擬 AI 思考並輸出)
-    function generateAiVideoPackage() {
-      const btn = document.getElementById('btnGenerateAi');
-      const icon = document.getElementById('genIcon');
-      const text = document.getElementById('genText');
-      const prodName = document.getElementById('studioProdName').value;
-
-      icon.classList.add('animate-spin');
-      text.innerText = 'AI 正在拆解賣點與生成分鏡腳本...';
-      btn.disabled = true;
-
-      setTimeout(() => {
-        icon.classList.remove('animate-spin');
-        text.innerText = '一鍵生成帶貨分鏡與合規腳本';
-        btn.disabled = false;
-
-        currentItem.name = prodName;
-        currentItem.hook = `「你還在用老方法折騰自己？只要把這款【${prodName}】加入日常，精緻女孩的自律生活根本不用花大錢！」`;
-        currentItem.prompt = `Commercial product videography for ${prodName}, soft cinematic lighting, beautiful modern aesthetics, 4k 60fps, high dynamic range.`;
-        currentItem.storyboard[0].audio = `還在煩惱狀態不佳？試試這個被無數博主推爆的【${prodName}】！`;
-        
-        renderCurrentVideoPackage();
-        showToast('AI 帶貨短影音分鏡腳本已生成完畢！');
-      }, 600);
-    }
-
-    // 一鍵全流程跑通
-    function runAutoPipeline() {
-      selectRadarItem('p_jade');
-      showToast('已自動啟動「爆品探測 $\rightarrow$ 影音分鏡 $\rightarrow$ 利潤精算」完整管道！');
-    }
-
-    // 法規即時快篩
-    function runComplianceScan() {
-      const text = document.getElementById('complianceInput').value;
-      const badge = document.getElementById('complianceBadge');
-      const badgeBox = document.getElementById('complianceMatchedBadges');
-      const recBox = document.getElementById('complianceRewrittenBox');
-      const btnApply = document.getElementById('btnApplyCleanText');
-
-      badgeBox.innerHTML = '';
-
-      if (!text.trim()) {
-        badge.className = "text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-400";
-        badge.innerText = "尚未輸入文字";
-        recBox.innerHTML = '<p class="text-slate-500">請在上方輸入腳本以進行合規檢驗。</p>';
-        btnApply.classList.add('hidden');
-        return;
-      }
-
-      const matched = [];
-      ILLEGAL_RULES.forEach(rule => {
-        if (text.includes(rule.word)) matched.push(rule);
-      });
-
-      if (matched.length === 0) {
-        badge.className = "text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800";
-        badge.innerText = "✅ 100% 綠色合規 (無醫療受罰紅線)";
-        recBox.innerHTML = '<p class="text-emerald-400 font-semibold">恭喜！腳本與字幕完全符合台灣衛福部法規，無任何醫療療效宣稱，可直接安心推流。</p>';
-        btnApply.classList.add('hidden');
-      } else {
-        badge.className = "text-xs font-bold px-2.5 py-0.5 rounded-full bg-rose-950 text-rose-400 border border-rose-800";
-        badge.innerText = `🚨 偵測到 ${matched.length} 處潛在違法開罰用詞！`;
-        
-        let recHtml = '<div class="space-y-1">';
-        matched.forEach(m => {
-          const span = document.createElement('span');
-          span.className = "px-2 py-0.5 bg-rose-900/60 text-rose-300 border border-rose-700/60 text-[10px] font-bold rounded";
-          span.innerText = `⚠️ 違規詞：${m.word}`;
-          badgeBox.appendChild(span);
-
-          recHtml += `<p class="text-xs text-slate-300">• 建議將「<span class="text-rose-400 font-bold">${m.word}</span>」替換為合法詞：「<span class="text-emerald-400 font-bold">${m.replace}</span>」</p>`;
-        });
-        recHtml += '</div>';
-        recBox.innerHTML = recHtml;
-        btnApply.classList.remove('hidden');
-      }
-    }
-
-    // 自動洗白替換並套用
-    function applyComplianceCleanText() {
-      let text = document.getElementById('complianceInput').value;
-      ILLEGAL_RULES.forEach(rule => {
-        text = text.replaceAll(rule.word, rule.replace);
-      });
-      document.getElementById('complianceInput').value = text;
-      currentItem.hook = currentItem.hook.replace(/消水腫/g, '舒緩護理').replace(/瘦臉/g, '線條按摩');
-      renderCurrentVideoPackage();
-      runComplianceScan();
-      showToast('文案已自動完成法規洗白！');
-    }
-
-    // 財務精算
-    function calcFinance() {
-      const cny = parseFloat(document.getElementById('finCny').value) || 0;
-      const fx = parseFloat(document.getElementById('finFx').value) || 4.6;
-      const price = parseFloat(document.getElementById('finPrice').value) || 0;
-      const shipping = parseFloat(document.getElementById('finShipping').value) || 0;
-
-      const freeShip = document.getElementById('finFreeShip').checked;
-      const coins = document.getElementById('finCoins').checked;
-
-      const costTwd = cny * fx;
-      const totalCost = costTwd + shipping;
-
-      let rate = 8.0; // 基礎手續費 5.5% + 金流 2.5%
-      if (freeShip) rate += 6.0;
-      if (coins) rate += 3.0;
-      if (freeShip && coins) rate -= 0.5;
-
-      const invoiceFee = 2.5;
-      const platformFee = (price * (rate / 100)) + invoiceFee;
-      const netProfit = price - totalCost - platformFee;
-      const margin = price > 0 ? ((netProfit / price) * 100).toFixed(1) : 0;
-      const bep = (totalCost + invoiceFee) / (1 - (rate / 100));
-
-      document.getElementById('resTotalCost').innerText = 'NT$ ' + totalCost.toFixed(1);
-      document.getElementById('resTotalRate').innerText = rate.toFixed(1) + '%';
-      document.getElementById('resFeeTotal').innerText = 'NT$ ' + platformFee.toFixed(1);
-      document.getElementById('resNetProfit').innerText = 'NT$ ' + netProfit.toFixed(1);
-      document.getElementById('resMargin').innerText = margin + '%';
-      document.getElementById('resBep').innerText = 'NT$ ' + Math.ceil(bep);
-    }
-
-    // 複製全部分鏡
-    function copyFullScript() {
-      const fullText = `【帶貨短影音腳本：${currentItem.name}】\n\n[HOOK 誘餌]\n${currentItem.hook}\n\n[分鏡與口播]\n` + 
-        currentItem.storyboard.map((s, i) => `第${i+1}段 (${s.time})\n畫面：${s.visual}\n口播：${s.audio}`).join('\n\n');
-      
-      copyStringToClipboard(fullText);
-      showToast('15秒整套分鏡與口播腳本已複製到剪貼簿！');
-    }
-
-    function copyToClipboard(elementId, successMsg) {
-      const text = document.getElementById(elementId).innerText || document.getElementById(elementId).value;
-      copyStringToClipboard(text);
-      showToast(successMsg);
-    }
-
-    function copyStringToClipboard(str) {
-      const el = document.createElement('textarea');
-      el.value = str;
-      document.body.appendChild(el);
-      el.select();
-      document.execCommand('copy');
-      document.body.removeChild(el);
-    }
-
-    // 自訂 Toast 提示
-    function showToast(msg) {
-      const toast = document.getElementById('toastNotification');
-      const text = document.getElementById('toastMessage');
-      text.innerText = msg;
-      toast.classList.remove('translate-y-[-150%]', 'opacity-0');
-      toast.classList.add('translate-y-0', 'opacity-100');
-
-      setTimeout(() => {
-        toast.classList.remove('translate-y-0', 'opacity-100');
-        toast.classList.add('translate-y-[-150%]', 'opacity-0');
-      }, 2500);
-    }
-
-    // 標籤切換器
+    // 標籤頁切換控制
     function switchTab(tabId) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-      document.querySelectorAll('.tab-btn').forEach(btn => {
+      document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.add('hidden'));
+      document.querySelectorAll('.tab-nav-btn').forEach(btn => {
         btn.classList.remove('text-brand-400', 'border-brand-500', 'font-bold');
         btn.classList.add('text-slate-400', 'border-transparent');
       });
 
-      document.getElementById(tabId).classList.remove('hidden');
+      const activePanel = document.getElementById(tabId);
+      if (activePanel) activePanel.classList.remove('hidden');
+
       const activeBtn = document.getElementById(`btn-${tabId}`);
       if (activeBtn) {
         activeBtn.classList.remove('text-slate-400', 'border-transparent');
         activeBtn.classList.add('text-brand-400', 'border-brand-500', 'font-bold');
       }
+    }
+
+    // 自訂 Toast 提示
+    function showToast(msg) {
+      const toast = document.getElementById('toastBox');
+      const text = document.getElementById('toastMsg');
+      text.innerText = msg;
+      toast.classList.remove('-translate-y-24', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('-translate-y-24', 'opacity-0');
+      }, 2400);
     }
   </script>
 </body>
